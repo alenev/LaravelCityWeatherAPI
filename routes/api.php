@@ -21,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['auth:api'])->group(function () {
     Route::get('stuff', '\App\Http\Controllers\api\StuffController@getStuff');
 });
+
+Route::get('google/login/url', '\App\Http\Controllers\api\GoogleController@getAuthUrl');
