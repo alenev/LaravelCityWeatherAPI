@@ -50,11 +50,12 @@ class GoogleController extends Controller
 
 
         $authCode = urldecode($request->input('auth_code'));
+       // $authCode = urldecode($request->input('code'));
 
         $client = $this->getClient();
 
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-//dd('authCode: '.$authCode.' $accessToken: '. json_encode($accessToken));
+
         $client->setAccessToken(json_encode($accessToken));
 
         $service = new \Google\Service\Oauth2($client);
@@ -63,7 +64,6 @@ class GoogleController extends Controller
         $user = User::where('provider_name', '=', 'google')
             ->where('provider_id', '=', $userFromGoogle->id)
             ->first();
-//dd('user: '.$user.' $accessToken: '. json_encode($accessToken));
     /*  $this->validate($userFromGoogle, [
                 'name' => 'required',
                 'email' => 'required|email|unique:users'
@@ -86,6 +86,37 @@ class GoogleController extends Controller
 
         $token = $user->createToken("Google")->accessToken;
         return response()->json($token, 201);
+    }
+
+    private function getUserClient()
+    {
+
+        $user = User::where('id', '=', auth()->guard('api')->user()->id)->first();
+
+        $accessTokenJson = stripslashes($user->google_access_token_json);
+        $client = $this->getClient();
+        $client->setAccessToken($accessTokenJson);
+
+
+        if ($client->isAccessTokenExpired()) {
+
+            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+            $client->setAccessToken($client->getAccessToken());
+            $user->google_access_token_json = json_encode($client->getAccessToken());
+            $user->save();
+        }
+
+        return $client;
+    }
+
+    public function getWeather(Request $request):JsonResponse
+    {
+      //  dd('getWeather');
+        $client = $this->getUserClient();
+
+        $AccessToken = json_encode($client->getAccessToken());
+
+        return response()->json($AccessToken, 200);
     }
 
 }
