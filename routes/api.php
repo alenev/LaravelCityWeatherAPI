@@ -23,3 +23,5 @@ Route::middleware(['auth:api'])->group(function () {
 });
 
 Route::get('google/login/url', '\App\Http\Controllers\api\GoogleController@getAuthUrl');
+
+Route::get('google/login', '\App\Http\Controllers\api\GoogleController@postLogin');
