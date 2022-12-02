@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+// use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-// use Laravel\Sanctum\HasApiTokens;
-use Laravel\Passport\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -44,4 +46,32 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function uploadAvatar($image, $extension = 'jpg'){
+        if($image == NULL) {return;}
+        $this->removeAvatar();
+        $filename = str_random(10) .''.$extension;
+        $store = Storage::disk('uploads')->put('uploads/avatars/'.$filename, $image);
+        if(!$store){
+          $this->profile = $filename;
+          $this->profile = NULL;
+        }   
+        $this->save();
+        return 'uploads/avatars/'.$filename;
+
+    }
+    public function removeAvatar(){
+
+        if($this->profile != null && file_exists('uploads/avatars/'.$this->profile)){ 
+          Storage::disk('uploads')->delete('uploads/avatars/'.$this->profile);
+         }
+
+    }
+    public function getAvatar(){
+        if($this->profile == null){
+            return '/img/no_avatar.jpg';
+        }
+        return '/uploads/avatars/'. $this->profile;
+    }
+
 }

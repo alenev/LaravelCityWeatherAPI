@@ -10,7 +10,7 @@
       "http://localhost/xyz/public/index.php"
     ],
     "javascript_origins": [
-      "https://xyz"
+      "http://localhost:8000"
     ]
   }
 }

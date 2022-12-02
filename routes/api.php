@@ -14,18 +14,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+*/
+
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('stuff', '\App\Http\Controllers\api\StuffController@getStuff');
-  //  Route::get('home', '\App\Http\Controllers\api\GoogleController@getWeather');
+    Route::get('home', '\App\Http\Controllers\api\GoogleController@getWeather');
+    Route::get('user', '\App\Http\Controllers\api\GoogleController@user');
+    Route::get('logout', '\App\Http\Controllers\api\GoogleController@logout');
+    
+});
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+ // return $request->user();
 });
 
 Route::get('google/login/url', '\App\Http\Controllers\api\GoogleController@getAuthUrl');
+Route::post('google/login', '\App\Http\Controllers\api\GoogleController@GoogleLogin');
+Route::post('login', '\App\Http\Controllers\api\GoogleController@login');
 
-Route::post('login', '\App\Http\Controllers\api\GoogleController@postLogin');
-//Route::post('login', [ 'as' => 'login', 'uses' => '\App\Http\Controllers\api\GoogleController@postLogin']);
 
-//Route::get('/', '\App\Http\Controllers\api\GoogleController@index');
