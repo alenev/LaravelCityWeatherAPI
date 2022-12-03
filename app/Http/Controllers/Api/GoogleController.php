@@ -136,7 +136,7 @@ class GoogleController extends Controller
     public function user(Request $request)
     {
 
-        return response()->json_encode($request->user());
+        return response()->json($request->user());
     }
 
     private function getUserClient()
@@ -170,6 +170,24 @@ class GoogleController extends Controller
     }
     }
 
+
+    public function openweathermap($url){
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->get($url, []);
+        $status = $res->getStatusCode(); 
+        $ans = $res->getBody();
+        $data = json_decode($ans);
+
+        $output = array(
+            "status" => $status,
+            "ans" => $ans,
+            "data" => $data
+        );
+
+        return $output;
+    }
+
     public function getWeather(Request $request):JsonResponse
     {
 
@@ -190,6 +208,8 @@ class GoogleController extends Controller
 
        curl_close($ch);
 
+   //    return response()->json(["json" => $json]);
+
         $data_geo = json_decode($json);
 
         if(empty($data_geo)){
@@ -198,12 +218,20 @@ class GoogleController extends Controller
 
         }
 
-        $location = $data_geo->city;
         $latitude = $data_geo->latitude;
         $longitude = $data_geo->longitude;
- 
+        $openweathermap_url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$latitude.'&lon='.$longitude.'&units=metric&appid=ab616f96e7078ab6ec4b8876d0d08a5b';
+        $openweathermap_data = null;
 
-        $ucity = $data_geo->city;
+        if(empty($data_geo->city)){
+            $openweathermap_data = $this->openweathermap($openweathermap_url);
+            $location = $openweathermap_data["data"]->name;
+        }else{
+            $location = $data_geo->city;
+        }
+        
+ 
+        $ucity = $location;
         $get_db_city = false;
         $city_update = false;
         $ddate = null;
@@ -211,6 +239,7 @@ class GoogleController extends Controller
         $added_nucity = null;
         $from_src = null;
         $redis = $this->redis_test();
+
 
         if ($redis == 1) {
 
@@ -228,17 +257,22 @@ class GoogleController extends Controller
 
         }
 
+
         if($get_db_city) {
 
             $eucityd = Weather::where('city', $ucity)->get();
+
+            if(count($eucityd) != 0){
+ 
             $eucity = $eucityd[0];
 
-            if(!empty($eucity) && $redis == 1){
-                Redis::set('city_'.$ucity, $eucity);
+              if($redis == 1){
+                 Redis::set('city_'.$ucity, $eucity);
+              }
             }
 
         }
-
+   
         $nowtime = Carbon::now();
 
         if(!empty($eucity)){
@@ -255,17 +289,15 @@ class GoogleController extends Controller
 
         }
 
-        $openweathermap_url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$latitude.'&lon='.$longitude.'&appid=ab616f96e7078ab6ec4b8876d0d08a5b';
-        $status = null;
-        $ans = null;
 
         if(empty($eucity) || $city_update){
 
-        $client = new \GuzzleHttp\Client();
-        $res = $client->get($openweathermap_url, []);
-        $status = $res->getStatusCode(); 
-        $ans = $res->getBody();
-        $data = json_decode($ans);
+           if(empty($openweathermap_data)){
+
+           $openweathermap_data = $this->openweathermap($openweathermap_url);
+            
+           }  
+           $data = $openweathermap_data["data"];
 
         }else{
 
@@ -274,6 +306,10 @@ class GoogleController extends Controller
 
         }
    
+        $tempR = round($data->main->temp, 0, PHP_ROUND_HALF_UP);
+        $temp_minR = round($data->main->temp_min, 0, PHP_ROUND_HALF_UP); 
+        $temp_maxR = round($data->main->temp_max, 0, PHP_ROUND_HALF_UP); 
+
         $user = Auth::user();
         ($user->status == 1) ? $ustatus = 'Active' : $ustatus = 'Disabled';
         $odataa = array(
@@ -288,11 +324,14 @@ class GoogleController extends Controller
               "updated_at" => $user->updated_at
             ),
             "main" => array(
-               "temp" => $data->main->temp,
+               "temp" => $tempR,
                "pressure" => $data->main->pressure,
                "humidity" => $data->main->humidity,
-               "temp_min" => $data->main->temp_min,
-               "temp_max" => $data->main->temp_max
+               "temp_min" => $temp_minR,
+               "temp_max" =>  $temp_maxR,
+               "city" => $ucity,
+               "test" => "temp: ".$data->main->temp." temp_min: ".$data->main->temp_min." temp_max: ".$data->main->temp_max
+
             )
         );
         

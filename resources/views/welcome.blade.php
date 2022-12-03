@@ -20,7 +20,7 @@
                 Don't Have An Account? <a>Sign up</a> or 
                  <a>Sign in</a>
                 </div>
-            <!--   -->
+        
                 <div id="remember">
                  <input type="checkbox" id="remember" name="remember" value="yes" />
                 Remeber for 1 hour? (default 3 min)    
@@ -32,8 +32,23 @@
         </div>
 
         <div id="logged_in_box">
-            <div id="weather_UI"></div>
+            <div id="weather_UI">
+            <div id="weather_UI_main">
+            <div id="weather_UI_city"></div>
+            <div id="weather_UI_temp"></div>
+            </div>
+            <div id="weather_UI_other">
+            <div id="weather_UI_pressure"></div>   
+            <div id="weather_UI_humidity"></div>
+            <div id="weather_UI_temp_min"></div>
+            <div id="weather_UI_temp_max"></div>
+            </div>
+            </div>
+
+            <div id="logout_box">
             <a>Logout</a>
+           </div>
+
         </div>
 
     </div>

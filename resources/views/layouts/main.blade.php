@@ -9,6 +9,7 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+        <link href="css/app.css" rel="stylesheet">
 
         <!-- Styles -->
         <style>
@@ -16,126 +17,7 @@
         </style>
 
         <style>
-            body {
-                font-family: 'Nunito', sans-serif;
-                background: #13273c;
-                color: #888995;
-            }
-            a {
-                color: #00749a;
-                cursor: pointer;
-            }
-            #login_box {
-                position: relative;
-            }
-
-            #google_logo {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 10px;
-            }
-
-            #google_logo img {
-                display: inline-block;
-            }
-            #remember {
-                margin-top: 10px;
-            }
-
-    .loader {
-    background: #000;
-    background: radial-gradient(#222, #000);
-    bottom: 0;
-    left: 0;
-    overflow: hidden;
-    position: fixed;
-    right: 0;
-    top: 0;
-    z-index: 99999;
-}
-
-.loader-inner {
-    bottom: 0;
-    height: 60px;
-    left: 0;
-    margin: auto;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100px;
-}
-
-.loader-line-wrap {
-    animation: 
-		spin 2000ms cubic-bezier(.175, .885, .32, 1.275) infinite
-	;
-    box-sizing: border-box;
-    height: 50px;
-    left: 0;
-    overflow: hidden;
-    position: absolute;
-    top: 0;
-    transform-origin: 50% 100%;
-    width: 100px;
-}
-.loader-line {
-    border: 4px solid transparent;
-    border-radius: 100%;
-    box-sizing: border-box;
-    height: 100px;
-    left: 0;
-    margin: 0 auto;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100px;
-}
-.loader-line-wrap:nth-child(1) { animation-delay: -50ms; }
-.loader-line-wrap:nth-child(2) { animation-delay: -100ms; }
-.loader-line-wrap:nth-child(3) { animation-delay: -150ms; }
-.loader-line-wrap:nth-child(4) { animation-delay: -200ms; }
-.loader-line-wrap:nth-child(5) { animation-delay: -250ms; }
-
-.loader-line-wrap:nth-child(1) .loader-line {
-    border-color: hsl(0, 80%, 60%);
-    height: 90px;
-    width: 90px;
-    top: 7px;
-}
-.loader-line-wrap:nth-child(2) .loader-line {
-    border-color: hsl(60, 80%, 60%);
-    height: 76px;
-    width: 76px;
-    top: 14px;
-}
-.loader-line-wrap:nth-child(3) .loader-line {
-    border-color: hsl(120, 80%, 60%);
-    height: 62px;
-    width: 62px;
-    top: 21px;
-}
-.loader-line-wrap:nth-child(4) .loader-line {
-    border-color: hsl(180, 80%, 60%);
-    height: 48px;
-    width: 48px;
-    top: 28px;
-}
-.loader-line-wrap:nth-child(5) .loader-line {
-    border-color: hsl(240, 80%, 60%);
-    height: 34px;
-    width: 34px;
-    top: 35px;
-}
-
-@keyframes spin {
-    0%, 15% {
-		transform: rotate(0);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
-}
-
+          
         </style>
     </head>
     <body class="antialiased">
@@ -169,6 +51,10 @@
         let preloader = document.getElementById('preloader');
         preloader.style.display = "none";
     }
+    function showPreloader(){
+        let preloader = document.getElementById('preloader');
+        preloader.style.display = "block";
+    }
     function showLogin(){
         login_box.style.display = "block";
         logged_in_box.style.display = "none";
@@ -180,15 +66,14 @@
     }
 
     function RenderHomePage(){ 
+
+       showPreloader();
+
        let xyz_access_token = localStorage.getItem('xyz_access_token');
        if(xyz_access_token && xyz_access_token.length > 1){
 
-          console.log('xyz_access_token: '+xyz_access_token);
-
           $atoken = 'Bearer '+xyz_access_token+'';
-          console.log('atoken: '+$atoken);
-
-    
+ 
            fetch('api/home', {
             method: 'GET', 
             headers: {
@@ -199,17 +84,50 @@
          })
          .then(function(response) {
 
-console.table(response);
+        hidePreloader();
 
             return response.json().then((data) => {
-
-console.table(data);
 
              if(data.error && data.error.indexOf('geodata') > -1){
                alert('Geodata receive problem. Refresh page.');
             }
 
-              //  console.log('user logout: '+ toString(data));
+
+        if(data.main.city){
+        let el = document.getElementById('weather_UI_city'); 
+        let text = document.createTextNode(data.main.city);
+        el.appendChild(text); 
+        }
+
+        if(data.main.temp){
+        let el = document.getElementById('weather_UI_temp'); 
+        let text = document.createTextNode(data.main.temp+"°C");
+        el.appendChild(text); 
+        }
+
+        if(data.main.pressure){
+        let el = document.getElementById('weather_UI_pressure'); 
+        let text = document.createTextNode("pressure: "+data.main.pressure);
+        el.appendChild(text); 
+        }
+
+        if(data.main.humidity){
+        let el = document.getElementById('weather_UI_humidity'); 
+        let text = document.createTextNode("humidity "+data.main.humidity);
+        el.appendChild(text); 
+        }
+
+        if(data.main.temp_min){
+        let el = document.getElementById('weather_UI_temp_min'); 
+        let text = document.createTextNode("temp min "+data.main.temp_min+"°C");
+        el.appendChild(text); 
+        }
+
+        if(data.main.temp_max){
+        let el = document.getElementById('weather_UI_temp_max'); 
+        let text = document.createTextNode("temp max "+data.main.temp_max+"°C");
+        el.appendChild(text); 
+        }
 
             }).catch((err) => {
                 console.log(err);
@@ -222,11 +140,11 @@ console.table(data);
               hidePreloader();
           });
 
-
         }else{
-            console.log('xyz_access_token not found');
+
             showLogin();
             hidePreloader();
+
         }
     }
 
@@ -234,12 +152,8 @@ console.table(data);
        let xyz_access_token = localStorage.getItem('xyz_access_token');
        if(xyz_access_token && xyz_access_token.length > 1){
 
-          console.log('xyz_access_token: '+xyz_access_token);
-
           $atoken = 'Bearer '+xyz_access_token+'';
-          console.log('atoken: '+$atoken);
-
-    
+ 
            fetch('api/user', {
             method: 'GET', 
             headers: {
@@ -266,7 +180,7 @@ console.table(data);
 
 
         }else{
-            console.log('xyz_access_token not found');
+
             showLogin();
             hidePreloader();
         }
@@ -276,10 +190,7 @@ console.table(data);
         let xyz_access_token = localStorage.getItem('xyz_access_token');
         if(xyz_access_token && xyz_access_token.length > 1){
 
-          console.log('logout xyz_access_token: '+xyz_access_token);
-
           $atoken = 'Bearer '+xyz_access_token+'';
-          console.log('logout atoken: '+$atoken);
     
            fetch('api/logout', {
             method: 'GET', 
