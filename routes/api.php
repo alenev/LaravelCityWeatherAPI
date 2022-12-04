@@ -22,15 +22,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('home', '\App\Http\Controllers\api\GoogleController@getWeather');
-    Route::get('user', '\App\Http\Controllers\api\GoogleController@user');
-    Route::get('logout', '\App\Http\Controllers\api\GoogleController@logout');
+    Route::get('home', '\App\Http\Controllers\Api\GoogleController@getWeather');
+    Route::get('user', '\App\Http\Controllers\Api\GoogleController@user');
+    Route::get('logout', '\App\Http\Controllers\Api\GoogleController@logout');
     
 });
 
 
-Route::get('google/login/url', '\App\Http\Controllers\api\GoogleController@getAuthUrl');
-Route::post('google/login', '\App\Http\Controllers\api\GoogleController@GoogleLogin');
-Route::post('login', '\App\Http\Controllers\api\GoogleController@login');
+Route::get('google/login/url', '\App\Http\Controllers\Api\GoogleController@getAuthUrl');
+Route::post('google/login', '\App\Http\Controllers\Api\GoogleController@GoogleLogin');
+Route::post('login', '\App\Http\Controllers\Api\GoogleController@login');
 
 
