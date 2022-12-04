@@ -72,13 +72,30 @@
        let xyz_access_token = localStorage.getItem('xyz_access_token');
        if(xyz_access_token && xyz_access_token.length > 1){
 
-          $atoken = 'Bearer '+xyz_access_token+'';
+       let geo_latitude = localStorage.getItem('geo_latitude');
+       let geo_longitude = localStorage.getItem('geo_longitude'); 
+       let geo_city = localStorage.getItem('geo_city'); 
+       
+       if(geo_latitude.length < 1 || geo_longitude.length < 1 || geo_city < 1){
+            alert("Geolocation data empty. Refresh page.");
+            let urlObj = new URL(window.location);
+            urlObj.search = '';
+            let rurl = urlObj.toString();
+            window.location.href = rurl;
+  
+        }
+  
+          let atoken = 'Bearer '+xyz_access_token+'';
  
-           fetch('api/home', {
+           fetch('api/home?' + new URLSearchParams({
+            geo_latitude: geo_latitude,
+            geo_longitude: geo_longitude,
+            geo_city: geo_city
+            }), {
             method: 'GET', 
             headers: {
                'Accept': 'application/json',
-               'Authorization': $atoken,
+               'Authorization': atoken,
                'X-CSRF-Token': document.querySelector('input[name=_token]').value
             }
          })
@@ -294,6 +311,8 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const code = urlParams.get('code');
+    let geo_latitude = null;
+    let geo_longitude = null;
 
     document.addEventListener("DOMContentLoaded", function(event) { 
 
@@ -333,9 +352,48 @@
         checkUserAuth();
       }
 
+      getLocation();
 
     }); 
 
+
+    function getLocation() {
+    if (navigator.geolocation) {
+       navigator.geolocation.getCurrentPosition(showPosition); 
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+    }
+
+    function showPosition(position) {
+    console.log("Latitude: " + position.coords.latitude +
+     "Longitude: " + position.coords.longitude);
+    localStorage.setItem('geo_latitude', position.coords.latitude);
+    localStorage.setItem('geo_longitude', position.coords.longitude);  
+    
+    let geo_url = 'https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+position.coords.latitude+'&longitude='+position.coords.longitude+'&localityLanguage=en';
+    fetch(geo_url, {
+            method: 'GET', 
+            headers: {
+               'Content-Type': 'application/json'
+            },
+         })
+         .then(function(response) {
+
+            return response.json().then((data) => {
+
+            if(data.city){
+               localStorage.setItem('geo_city', data.city);
+            } 
+            }).catch((err) => {
+                console.log(err);
+            }) 
+         })
+          .catch(function(error) {
+              console.error('Error:', error);
+          });
+
+}
 
 </script>
 

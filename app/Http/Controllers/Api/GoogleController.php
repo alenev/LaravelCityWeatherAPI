@@ -16,7 +16,6 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\BadResponseException;
 use App\Models\Weather;
 use Illuminate\Support\Facades\Redis;
-//use Redis;
 
 require_once base_path().'/vendor/autoload.php';
 
@@ -191,33 +190,21 @@ class GoogleController extends Controller
     public function getWeather(Request $request):JsonResponse
     {
 
-       $ch = curl_init();
-       curl_setopt($ch, CURLOPT_URL,"https://geolocation-db.com/json");
-       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+       $data_geo_arr = array(
+        "latitude" => $request["geo_latitude"],
+        "longitude" => $request["geo_longitude"],
+        "city" => $request["geo_city"]
+       );
 
-       if(curl_exec($ch) === false || strpos(curl_exec($ch),'404') > 0 ){
+       $data_geo = (object)($data_geo_arr);
 
-        return response()->json(["error" => "geodata unavailable"]); 
-
-       }else{
-
-        $json = curl_exec($ch);
-
-       }
-
-       curl_close($ch);
-
-   //    return response()->json(["json" => $json]);
-
-        $data_geo = json_decode($json);
 
         if(empty($data_geo)){
 
             return response()->json(["error" => "geodata unavailable"]); 
 
         }
-
+       
         $latitude = $data_geo->latitude;
         $longitude = $data_geo->longitude;
         $openweathermap_url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$latitude.'&lon='.$longitude.'&units=metric&appid=ab616f96e7078ab6ec4b8876d0d08a5b';
@@ -230,7 +217,7 @@ class GoogleController extends Controller
             $location = $data_geo->city;
         }
         
- 
+
         $ucity = $location;
         $get_db_city = false;
         $city_update = false;
