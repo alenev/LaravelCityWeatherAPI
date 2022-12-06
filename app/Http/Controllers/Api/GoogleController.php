@@ -9,6 +9,10 @@ use App\Http\Controllers\Controller as Controller;
 use Carbon\Carbon;
 use App\Models\User;
 use Laravel\Passport\Passport;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Str;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
@@ -17,11 +21,14 @@ use GuzzleHttp\Exception\BadResponseException;
 use App\Models\Weather;
 use Illuminate\Support\Facades\Redis;
 
+
+
+
 require_once base_path().'/vendor/autoload.php';
 
 class GoogleController extends Controller
 {
-    private function getClient()
+    private function getClient($redirect_url = null)
     {
         $configJson = base_path().'/google_api_config.json';
 
@@ -30,6 +37,9 @@ class GoogleController extends Controller
         $client = new \Google\Client();
         $client->setApplicationName($applicationName);
         $client->setAuthConfig($configJson);
+        if (!empty($redirect_url)) {
+            $client->setRedirectUri($redirect_url);
+        }
         $client->setAccessType('offline');
         $client->setApprovalPrompt ('force');
 
@@ -46,19 +56,22 @@ class GoogleController extends Controller
 
     public function getAuthUrl(Request $request):JsonResponse
     {
-
-        $client = $this->getClient();
+        $redirect_url = null;
+        if(!empty($request['redirect_url'])){
+            $redirect_url = $request['redirect_url'];
+        }
+        $client = $this->getClient($redirect_url);
 
         $authUrl = $client->createAuthUrl();
 
         return response()->json($authUrl, 200);
     }
 
-    public function GoogleLogin(Request $request):JsonResponse
+    public function GoogleLogin($data)
     {
-
-        $authCode = $request['auth_code'];
-        $remember = $request['remember'];
+   
+        $authCode = $data["auth_code"];
+        $remember = $data['remember'];
 
         if($remember == '1'){
             $token_exp = 60;
@@ -76,10 +89,13 @@ class GoogleController extends Controller
 
         $accessTokenInfo = json_decode(json_encode($accessToken));
         if(!empty($accessTokenInfo->error)){
-          return response()->json( ['error' => 'invalid_grant']);
+          return response()->json(['error' => 'invalid_grant'], 422);
         }
 
+        
+
         $client->setAccessToken(json_encode($accessToken));
+ 
 
         $service = new \Google\Service\Oauth2($client);
         $userFromGoogle = $service->userinfo->get();
@@ -91,6 +107,8 @@ class GoogleController extends Controller
             $avatar_img = file_get_contents($userFromGoogle->picture);
             $avatar_img_size = getimagesize($userFromGoogle->picture);
             $avatar_img_extension = image_type_to_extension($avatar_img_size[2]);
+
+        $uploadAvatar = null;
 
         if (!$user) {
 
@@ -104,7 +122,7 @@ class GoogleController extends Controller
                     'last_name' => $userFromGoogle->familyName
                ]);
 
-            $user->uploadAvatar($avatar_img, $avatar_img_extension);
+            $uploadAvatar = $user->uploadAvatar($avatar_img, $avatar_img_extension);
 
                
         }else{
@@ -114,28 +132,109 @@ class GoogleController extends Controller
         }
 
         $token = $user->createToken("Google")->accessToken;
+          
+        return $token;
+
+    }
+
+    public function login(Request $request) {
+
+        $auth_code = $request["auth_code"];
+        $remember = $request["remember"];
+        $token = null;
+
+        if(!empty($auth_code)){
+           $gdata = array(
+            "auth_code" => $auth_code,
+            "remember" => $remember
+           );
+            $token = $this->GoogleLogin($gdata);
+            return response()->json($token, 200); 
+        } else {
+         
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:255',
+                'password' => 'required|string|min:6',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()->all()], 422);
+            }
+
+            $user = User::where('email', $request["email"])->first();
+
+            if ($user) {
+
+                if(empty($user->email_verified_at) && $user->provider_name !== 'google'){
+ 
+                    $user->sendEmailVerificationNotification();
+                    return response()->json(['errors' => 'User email is not verified. Email sended to '.$user->email], 422);
+               
+                }else if($user->provider_name == 'google'){
+                    return  response()->json(["errors" => "User register via Google"], 422);
+                }else{
+
+                $password_check = false;
+                if($user->password == null){
+
+                $password = Hash::make($request['password']);
+                $user->password = $password;
+                $user->save();
+                $password_check = true;
+
+                }else{
+                
+                if(Hash::check($request['password'], $user->password)) {
+                $password_check = true;
+                }else{
+                return  response()->json(["errors" => "Password mismatch"], 422);
+                }
+
+                if($password_check) {
+                $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+                return response()->json($token, 200);
+                }else{
+                return response()->json(["errors" => "Password errors"], 422);    
+                }
+                }
+      
+            
+            }
+            } else {
+                 $this->register($request);
+            }
+        }   
+    }
+
+    public function register($data):JsonResponse  {
+
        
-        return response()->json($token, 201);
+        $validator = Validator::make($data->all(), [
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
 
+        if ($validator->fails()){
+        return response()->json(['errors'=>$validator->errors()->all()], 422);
+        }
+        $data['password'] = Hash::make($data['password']);
+        $data->provider_name = 'login api';    
+        $user = User::create($data->toArray());
+        return response()->json(['errors' => 'User register. User email is not verified. Email sended to '.$user->email], 403);
+               
     }
 
-    public function login(Request $request)
-    {
-        return response()->json($request->user());
-    }
 
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ]);
+        return response()->json(['message' => 'Successfully logged out'], 200);
     }
   
     public function user(Request $request)
     {
 
-        return response()->json($request->user());
+        return response()->json($request->user(), 200);
     }
 
     private function getUserClient()
@@ -201,7 +300,7 @@ class GoogleController extends Controller
 
         if(empty($data_geo)){
 
-            return response()->json(["error" => "geodata unavailable"]); 
+            return response()->json(["error" => "geodata unavailable"], 404); 
 
         }
        
@@ -316,9 +415,7 @@ class GoogleController extends Controller
                "humidity" => $data->main->humidity,
                "temp_min" => $temp_minR,
                "temp_max" =>  $temp_maxR,
-               "city" => $ucity,
-               "test" => "temp: ".$data->main->temp." temp_min: ".$data->main->temp_min." temp_max: ".$data->main->temp_max
-
+               "city" => $ucity
             )
         );
         
@@ -341,7 +438,7 @@ class GoogleController extends Controller
 
         $cities = Weather::all();
      
-    return response()->json($odataa);
+    return response()->json([$odataa], 200);
 
    }
 

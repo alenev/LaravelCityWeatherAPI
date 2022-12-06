@@ -25,7 +25,7 @@
                  <input type="checkbox" id="remember" name="remember" value="yes" />
                 Remeber for 1 hour? (default 3 min)    
                 </div>
-           
+
                 @endauth
 
               

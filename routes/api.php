@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 /*
@@ -30,7 +30,11 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 Route::get('google/login/url', '\App\Http\Controllers\Api\GoogleController@getAuthUrl');
-Route::post('google/login', '\App\Http\Controllers\Api\GoogleController@GoogleLogin');
 Route::post('login', '\App\Http\Controllers\Api\GoogleController@login');
+
+ 
+
+
+
 
 

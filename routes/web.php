@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', function () {
@@ -25,5 +25,12 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::get('/email/verify/{id}/{hash}', '\App\Http\Controllers\VerifyEmailController@set')->name('verification.verify');
+
+
+Route::get('/email_verify_success', function () {
+    return view('email_verify_success');
+});
+ 
 
 

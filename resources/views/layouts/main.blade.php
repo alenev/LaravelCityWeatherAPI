@@ -242,12 +242,11 @@
         let login_data = JSON.stringify({'auth_code': code, 'remember': remember});
 
 
-        await fetch('api/google/login', {
+        await fetch('api/login', {
             method: 'POST', 
             headers: {
                'Content-Type': 'application/json',
                'Accept': 'application/json',
-               'url': 'api/google/login',
                "X-CSRF-Token": document.querySelector('input[name=_token]').value
             },
             body: login_data
@@ -267,6 +266,7 @@
                   urlObj.search = '';
                   let rurl = urlObj.toString();
                   window.location.href = rurl;
+             
 
                 }
 
@@ -346,7 +346,9 @@
         if(remember && remember == 1){
         localStorage.setItem('remember', 0);
         }  
-        google_login_API(code, remember);
+        localStorage.setItem('google_auth_code', code);
+     //   google_login_API(code, remember);
+
       }else{
         localStorage.setItem('remember', 0);
         checkUserAuth();
@@ -354,6 +356,17 @@
 
       getLocation();
 
+      let google_auth_code = localStorage.getItem('google_auth_code');
+      if(google_auth_code && google_auth_code.length > 1){
+        console.log("google_auth_code: "+google_auth_code);
+      }
+
+      let geo_latitude = localStorage.getItem('geo_latitude');
+      let geo_longitude = localStorage.getItem('geo_longitude'); 
+      let geo_city = localStorage.getItem('geo_city');
+      console.log("Latitude: " + geo_latitude +
+      "Longitude: " + geo_longitude +" City: "+geo_city);
+      
     }); 
 
 
@@ -366,8 +379,7 @@
     }
 
     function showPosition(position) {
-    console.log("Latitude: " + position.coords.latitude +
-     "Longitude: " + position.coords.longitude);
+    
     localStorage.setItem('geo_latitude', position.coords.latitude);
     localStorage.setItem('geo_longitude', position.coords.longitude);  
     

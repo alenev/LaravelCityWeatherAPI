@@ -21,15 +21,7 @@
                          @auth
                             logged in   
                          @else
-                            <div id="login_box">
-                            <div id="google_login_button">
-                            <div id="google_logo">
-                            <img  src="img/google_logo.png" />
-                            </div>
-                            Don't Have An Account? <a>Sign up</a> or 
-                             <a>Sign in</a>
-                            </div>
-                           </div>
+                            logged out
                         @endauth
   
                 </div>
