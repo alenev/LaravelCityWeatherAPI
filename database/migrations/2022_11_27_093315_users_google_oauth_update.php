@@ -24,9 +24,7 @@ class UsersGoogleOauthUpdate extends Migration
     public function down()
     {
         Schema::table('users', function ($table) {
-            $table->dropColumn('provider_id');
-            $table->dropColumn('provider_name');
-            $table->dropColumn('google_access_token_json');
+            $table->dropColumn('provider_id', 'provider_name', 'google_access_token_json');
             $table->string('name')->change();
             $table->string('email')->unique()->change();
             $table->string('password')->change();

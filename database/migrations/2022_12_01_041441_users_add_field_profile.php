@@ -28,11 +28,8 @@ class UsersAddFieldProfile extends Migration
      */
     public function down()
     {
-       Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('profile');
-            $table->dropColumn('first_name');
-            $table->dropColumn('last_name');
-            $table->dropColumn('status');
+       Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('profile', 'first_name', 'last_name', 'status');
         });
     }
 }
