@@ -21,9 +21,12 @@
         </style>
     </head>
     <body class="antialiased">
+	
     @csrf
+	
     @yield('content')
-
+	
+   
 
  <div id="preloader" class="loader">
 	<div class="loader-inner">
@@ -76,7 +79,7 @@
        let geo_longitude = localStorage.getItem('geo_longitude'); 
        let geo_city = localStorage.getItem('geo_city'); 
        
-       if(geo_latitude.length < 1 || geo_longitude.length < 1 || geo_city < 1){
+       if((geo_latitude && geo_latitude.length < 1) || (geo_longitude && geo_longitude.length < 1) || (geo_city && geo_city < 1)){
             alert("Geolocation data empty. Refresh page.");
             let urlObj = new URL(window.location);
             urlObj.search = '';
@@ -109,7 +112,10 @@
                alert('Geodata receive problem. Refresh page.');
             }
 
-
+        if(!data.main){
+		  data = data[0];
+		}
+        
         if(data.main.city){
         let el = document.getElementById('weather_UI_city'); 
         let text = document.createTextNode(data.main.city);
@@ -165,8 +171,11 @@
         }
     }
 
+
     function checkUserAuth(){
        let xyz_access_token = localStorage.getItem('xyz_access_token');
+	   
+console.log("xyz_access_token: "+xyz_access_token);
        if(xyz_access_token && xyz_access_token.length > 1){
 
           $atoken = 'Bearer '+xyz_access_token+'';
@@ -240,8 +249,6 @@
 
         let token = document.querySelector('input[name=_token]').value;
         let login_data = JSON.stringify({'auth_code': code, 'remember': remember});
-
-
         await fetch('api/login', {
             method: 'POST', 
             headers: {
@@ -252,8 +259,9 @@
             body: login_data
          })
          .then(function(response) {
-
+         
              return response.json().then((data) => {
+
                 if(data.error && data.error.length > -1){
 
                     showLogin();
@@ -262,12 +270,12 @@
                 }else if(data && data.length > -1){
 
                   localStorage.setItem('xyz_access_token', data);
+              
                   let urlObj = new URL(window.location);
                   urlObj.search = '';
                   let rurl = urlObj.toString();
-                  window.location.href = rurl;
-             
-
+				  localStorage.setItem('google_login_frontend', 'false');
+                  window.location.href = rurl;         
                 }
 
             }).catch((err) => {
@@ -281,7 +289,9 @@
 
 
       async function google_login_UI(){
-        await fetch('api/google/login/url', {
+	  
+		let url = 'api/google/login/url';
+        await fetch(url, {
             method: 'GET', 
             headers: {
                'Content-Type': 'application/json',
@@ -310,13 +320,14 @@
     let logged_in_box = document.getElementById("logged_in_box");
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+	const urlst = new URL(window.location); 
     const code = urlParams.get('code');
+	let google_login_frontend = localStorage.getItem('google_login_frontend');
     let geo_latitude = null;
     let geo_longitude = null;
 
     document.addEventListener("DOMContentLoaded", function(event) { 
 
-    
     let rbcb = document.getElementById('remember');
     if(rbcb){
      rbcb.addEventListener('click', (event) =>{
@@ -328,9 +339,11 @@
  
     })
     }
-
+	
+      
       let google_login_button = document.getElementById('google_login_button');
       google_login_button.onclick = async () => {
+	   localStorage.setItem('google_login_frontend', 'true');
        await google_login_UI();
       }
      
@@ -339,15 +352,14 @@
       google_logout_button.onclick = async () => {
       await logout();
       }
-
-      
-      if(code && code.length > 1){
+	
+      if(code && code.length > 1 && google_login_frontend == 'true'){
         let remember = localStorage.getItem('remember');
         if(remember && remember == 1){
         localStorage.setItem('remember', 0);
         }  
         localStorage.setItem('google_auth_code', code);
-     //   google_login_API(code, remember);
+        google_login_API(code, remember);
 
       }else{
         localStorage.setItem('remember', 0);
@@ -355,11 +367,6 @@
       }
 
       getLocation();
-
-      let google_auth_code = localStorage.getItem('google_auth_code');
-      if(google_auth_code && google_auth_code.length > 1){
-        console.log("google_auth_code: "+google_auth_code);
-      }
 
       let geo_latitude = localStorage.getItem('geo_latitude');
       let geo_longitude = localStorage.getItem('geo_longitude'); 
@@ -379,7 +386,7 @@
     }
 
     function showPosition(position) {
-    
+
     localStorage.setItem('geo_latitude', position.coords.latitude);
     localStorage.setItem('geo_longitude', position.coords.longitude);  
     

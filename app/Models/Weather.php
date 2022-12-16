@@ -12,7 +12,7 @@ class Weather extends Model
 {
     use HasFactory;
 
-    protected $table = 'Weather';
+    protected $table = 'weather';
     protected $fillable = [
         'city',
         'data'

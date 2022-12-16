@@ -84,7 +84,11 @@ class GoogleController extends Controller
         Passport::tokensExpireIn(now()->addMinutes($token_exp));
 
         $client = $this->getClient();
-
+        if ($client) {
+          //  return response()->json(["client" => "true"], 200);
+        }else{
+            return response()->json(["client" => "false"], 200);
+        }
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
 
         $accessTokenInfo = json_decode(json_encode($accessToken));
@@ -149,6 +153,7 @@ class GoogleController extends Controller
             "remember" => $remember
            );
             $token = $this->GoogleLogin($gdata);
+
             return response()->json($token, 200); 
         } else {
          
@@ -162,10 +167,10 @@ class GoogleController extends Controller
             }
 
             $user = User::where('email', $request["email"])->first();
-
+      
             if ($user) {
 
-                if(empty($user->email_verified_at) && $user->provider_name !== 'google'){
+                if(empty($user->email_verified_at) && $user->provider_name !== 'google' && !$request['noverify_email']){
  
                     $user->sendEmailVerificationNotification();
                     return response()->json(['errors' => 'User email is not verified. Email sended to '.$user->email], 422);
@@ -201,7 +206,8 @@ class GoogleController extends Controller
             
             }
             } else {
-                 $this->register($request);
+                $register = $this->register($request);
+                return $register;
             }
         }   
     }
@@ -218,10 +224,11 @@ class GoogleController extends Controller
         return response()->json(['errors'=>$validator->errors()->all()], 422);
         }
         $data['password'] = Hash::make($data['password']);
-        $data->provider_name = 'login api';    
+        $data['provider_name'] = 'login api';    
         $user = User::create($data->toArray());
-        return response()->json(['errors' => 'User register. User email is not verified. Email sended to '.$user->email], 403);
-               
+        $user->sendEmailVerificationNotification();
+        return response()->json(['errors' => 'User register. User email is not verified. Email sended to user'], 403);
+                   
     }
 
 
@@ -237,6 +244,7 @@ class GoogleController extends Controller
         return response()->json($request->user(), 200);
     }
 
+  
     private function getUserClient()
     {
 
@@ -341,8 +349,7 @@ class GoogleController extends Controller
         $get_db_city = true;
         }
 
-        }
-
+        }     
 
         if($get_db_city) {
 
@@ -392,33 +399,47 @@ class GoogleController extends Controller
 
         }
    
-        $tempR = round($data->main->temp, 0, PHP_ROUND_HALF_UP);
-        $temp_minR = round($data->main->temp_min, 0, PHP_ROUND_HALF_UP); 
-        $temp_maxR = round($data->main->temp_max, 0, PHP_ROUND_HALF_UP); 
-
         $user = Auth::user();
         ($user->status == 1) ? $ustatus = 'Active' : $ustatus = 'Disabled';
         $odataa = array(
             "user" => array(
-              "id" => $user->id,
-              "first_name" => $user->first_name,
-              "last_name" => $user->last_name,
-              "email" => $user->email,
-              "profile" => 'http://localhost:8000/uploads/avatars/'.$user->profile,
-              "status" => $ustatus,
-              "created_at" => $user->created_at,
-              "updated_at" => $user->updated_at
-            ),
-            "main" => array(
-               "temp" => $tempR,
-               "pressure" => $data->main->pressure,
-               "humidity" => $data->main->humidity,
-               "temp_min" => $temp_minR,
-               "temp_max" =>  $temp_maxR,
-               "city" => $ucity
+                "id" => $user->id,
+                "first_name" => $user->first_name,
+                "last_name" => $user->last_name,
+                "email" => $user->email,
+                "profile" => 'http://localhost:8000/uploads/avatars/' . $user->profile,
+                "status" => $ustatus,
+                "created_at" => $user->created_at,
+                "updated_at" => $user->updated_at
             )
         );
+
+        $odataa["main"] = array();
+
+        if(!empty($data->main->temp)){
+            $odataa["main"]["temp"] = round($data->main->temp, 0, PHP_ROUND_HALF_UP);
+        }
         
+        if(!empty($data->main->pressure)){
+            $odataa["main"]["pressure"] = $data->main->pressure;
+        }
+        
+        if(!empty($data->main->humidity)){
+            $odataa["main"]["humidity"] = $data->main->humidity;
+        }
+
+        if(!empty($data->main->temp_min)){
+            $odataa["main"]["temp_min"] = round($data->main->temp_min, 0, PHP_ROUND_HALF_UP);   
+        }
+        
+        if(!empty($data->main->temp_max)){
+            $odataa["main"]["temp_max"] = round($data->main->temp_max, 0, PHP_ROUND_HALF_UP); 
+        }
+
+        if(!empty($ucity)){
+            $odataa["main"]["city"] = $ucity;
+        }
+ 
         $nucity = [
             "city" => $ucity, 
             "data" => json_encode($odataa)  
@@ -432,13 +453,14 @@ class GoogleController extends Controller
         }else if($city_update){
 
             $city = Weather::find($eucity->id);
-            $city->edit($nucity);
-
+            if ($city) {
+                $city->edit($nucity);
+            }
         }  
 
         $cities = Weather::all();
      
-    return response()->json([$odataa], 200);
+    return response()->json($odataa, 200);
 
    }
 
