@@ -1,4 +1,3 @@
-RXYZ
 
 # Table of Contents
 
@@ -6,10 +5,11 @@ RXYZ
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [API](#api)
+- [Testing](#testing)
 
 # Introduction
 
- RXYZ is Laravel application with API for getting weather data from openweathermap.org with Google SSO
+xyz is Laravel application with API for getting weather data from openweathermap.org with Google SSO
  
  - by default the Laravel Passport auth token has an expiration time of 3 minutes
  - openweathermap.org data for a certain city is stored in the database for 1 minute without repeated requests for 1 minute to openweathermap.org. If the time of the previous request to openweathermap.org for a certain city is more than 1 minute, a request is made to receive updated data from openweathermap.org
@@ -53,7 +53,17 @@ php artisan migrate
 php artisan passport:install
 ```
 
+```shell
+redis-server config/redis.conf
+```
+
 # API
 
+https://documenter.getpostman.com/view/11745573/2s8YzP3QZh
 
+# Testing
+
+- to test Google oAuth (test_getGoogleLoginUrl) the GOOGLE_OAUTH_TEST parameter in /phpunit.xml must be set to 'true'. The console will display the authorization URL for Google oAuth in the browser
+- after authorization in the browser and redirect from the address bar of the browser, you need to copy the value of the 'code' parameter and paste it into the GOOGLE_OAUTH_TEST_CODE parameter in /phpunit.xml After that, the test of exchanging the Google oAuth authorization code for the Passport access token (test_login_google) will display the token in the console
+- to skip Google oAuth authorization tests, the GOOGLE_OAUTH_TEST parameter in /phpunit.xml must be set to 'false'
 
