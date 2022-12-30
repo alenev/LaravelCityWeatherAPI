@@ -18,6 +18,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/login', function () {
+    return view('loginVUE');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', function () {
@@ -31,6 +35,10 @@ Route::get('/email/verify/{id}/{hash}', '\App\Http\Controllers\VerifyEmailContro
 Route::get('/email_verify_success', function () {
     return view('email_verify_success');
 });
- 
+
+Route::get('/vuedemo', function () {
+    return Redirect::to('/vuedemo/public');
+   // return File::get(env('APP_URL').'/vuedemo/public/index.html');
+});
 
 

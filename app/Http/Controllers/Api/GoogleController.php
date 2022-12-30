@@ -56,6 +56,7 @@ class GoogleController extends Controller
 
     public function getAuthUrl(Request $request):JsonResponse
     {
+
         $redirect_url = null;
         if(!empty($request['redirect_url'])){
             $redirect_url = $request['redirect_url'];
@@ -67,7 +68,7 @@ class GoogleController extends Controller
         return response()->json($authUrl, 200);
     }
 
-    public function GoogleLogin($data)
+    protected function GoogleLogin($data)
     {
    
         $authCode = $data["auth_code"];
@@ -84,9 +85,7 @@ class GoogleController extends Controller
         Passport::tokensExpireIn(now()->addMinutes($token_exp));
 
         $client = $this->getClient();
-        if ($client) {
-          //  return response()->json(["client" => "true"], 200);
-        }else{
+        if (!$client){
             return response()->json(["client" => "false"], 200);
         }
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
