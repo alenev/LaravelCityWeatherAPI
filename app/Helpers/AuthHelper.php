@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Passport\Passport;
+
 class AuthHelper{
 
 
