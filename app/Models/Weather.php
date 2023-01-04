@@ -19,7 +19,7 @@ class Weather extends Model
     ];
 
 
-    public static function add($fields):bool
+    public static function add($fields):bool|object
     {
 
         $city = new static;
@@ -40,6 +40,8 @@ class Weather extends Model
 
         }
      }
+
+     return $city;
 
 }
 
@@ -71,6 +73,8 @@ class Weather extends Model
         }
 
         }
+
+        return true;
  
      }
 

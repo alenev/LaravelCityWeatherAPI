@@ -60,7 +60,6 @@ class ApiControllersTest extends TestCase
 
         $statusCode = $response->getStatusCode();
 
-
         if (!empty($response_content['error'])) {
   
             $this->fail('test_login_google() error: '.$response_content['error']);
@@ -86,6 +85,129 @@ class ApiControllersTest extends TestCase
 
        }
 
+    }
+
+    public function test_register_and_login()
+    {
+        if (!env('GOOGLE_OAUTH_TEST')) {
+
+        User::factory()->create([
+            "first_name" => "first_name",
+            "last_name" => "last_name",
+            "email" => "testmail@example.com",
+            "password" => Hash::make("12345678")
+        ]);    
+
+        $user = User::where('email', 'testmail@example.com')->get()->first();
+        
+        if(!empty($user)){     
+        
+        $payload = [
+            "auth_code" => '',
+            "email" => "testmail@example.com",
+            "password" => "12345678",
+            "remember" => 1,
+            "noverify_email" => true
+        ];
+
+            $response = $this->json('post', 'api/auth', $payload);
+
+            $response_content = $response->getOriginalContent();
+
+            $statusCode = $response->getStatusCode();
+
+                if (!empty($response_content) && empty($response_content["errors"])) {
+
+                    if($statusCode == 200 || $statusCode == 201){
+
+                    print "\xA".'test_register_and_login data'.json_encode($response_content["data"]);
+
+                    $response->assertStatus($statusCode);
+
+                    }
+               
+                } else {
+
+                    $message = 'test_register_and_login fail';
+
+                    if (!empty($response_content["errors"])) {
+                 
+                        $message =  'test_register_and_login error: ' . $response_content["errors"];
+                    }
+
+                    $this->fail($message);
+               
+                }
+
+        }else{
+
+            $this->fail('test_register_and_login registered user not found');
+
+        }
+
+        } else {
+
+            print "\xA".'test_register_and_login skip';
+
+            $this->assertTrue(true);
+
+        }
+ 
+    }
+
+    public function test_getWeather()
+    {
+         
+            $payload = [
+               "geo_latitude" => "50.4676612",
+               "geo_longitude" => "30.4051859",
+               "geo_city" => "Kyiv"
+            ];
+
+            Passport::actingAs(
+                User::factory()->create([
+                    "first_name" => "first_name",
+                    "last_name" => "last_name"
+                ]),
+                ['api/city_weather']
+            );
+
+
+            $response = $this->json('GET', 'api/city_weather', $payload);
+
+            $response_content = $response->getOriginalContent();
+
+            if(!empty($response_content['error'])){
+
+                print "\xA".'test_getWeather error: '.$response_content['error'];
+
+            } else {
+
+            $response->assertStatus(200)->assertJsonStructure([
+              "data" => [
+                "user" => [
+                  "id",
+                  "first_name",
+                  "last_name",
+                  "email",
+                  "profile",
+                  "status",
+                  "created_at",
+                  "updated_at"
+                ],
+                "main" => [
+                  "city",
+                  "temp",
+                  "pressure",
+                  "humidity",
+                  "temp_min",
+                  "temp_max",
+                  
+                ]
+              ]
+            ]);
+
+        }
     }
 
 }

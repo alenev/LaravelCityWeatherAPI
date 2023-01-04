@@ -172,7 +172,7 @@ class CityWeatherController extends Controller
         }  
 
 
-    return response()->json(['odataa' => $odataa], 200);  
+    return Controller::ApiResponceSuccess($odataa, 200);
 
     }  
 
