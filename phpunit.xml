@@ -27,7 +27,7 @@
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
         <server name="TELESCOPE_ENABLED" value="false"/>
-		<env name="GOOGLE_OAUTH_TEST" value="false"/>
+		<env name="GOOGLE_OAUTH_TEST" value="true"/>
         <env name="GOOGLE_OAUTH_TEST_CODE" value="" force="true" />
    
     </php>

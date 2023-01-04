@@ -61,7 +61,7 @@ class UserLoginController extends Controller implements AuthInterface
              $BearerTokenExp = $Token->token->expires_at->diffInMinutes(Carbon::now());
              
              $output_data = array(
-               'data' => $BearerToken,
+               'bearerToken' => $BearerToken,
                'provider' => 'Login form', 
                'bearerTokenExp' => $BearerTokenExp
              );
