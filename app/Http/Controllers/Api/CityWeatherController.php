@@ -172,10 +172,8 @@ class CityWeatherController extends Controller
         }  
 
 
-    return response()->json(['odataa' => $odataa], 200); 
-    
+    return response()->json(['odataa' => $odataa], 200);  
 
     }  
-
 
 }
