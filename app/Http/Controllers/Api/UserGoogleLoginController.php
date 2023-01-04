@@ -17,21 +17,13 @@ class UserGoogleLoginController extends Controller implements AuthInterface
     public function login($request):JsonResponse
     {
         
-        // validating request data
-        // $validator = GoogleAuthHelper::GoogleLoginRequestValidate($request);
-
-        // if ($validator->fails()) {
-
-        //     return response()->json(['error' => $validator->errors()->all()], 422);
-
-        // }
         
         // exchange Google Auth Code to Google access token object
         $GoogleAccessToken = GoogleAuthHelper::GoogleAuthCodeToAccesToken($request["auth_code"]);
 
         if(!is_object($GoogleAccessToken) && !empty($GoogleAccessToken['error'])){
 
-           return response()->json(['error' => $GoogleAccessToken['error']], $GoogleAccessToken['status']);
+           return Controller::ApiResponceError($GoogleAccessToken['error'], $GoogleAccessToken['status']);
 
         }
         
@@ -42,7 +34,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
 
         if(empty($userFromGoogle)){
 
-            return response()->json(['error' => 'user from Google unavailable'], 503);
+            return Controller::ApiResponceError('user from Google unavailable', 503);
 
         }
 
@@ -53,7 +45,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
 
         if (!$userFromGoogleUpdate) {
         
-            return response()->json(['error' => 'user Google login error'], 500);
+            return Controller::ApiResponceError('user Google login error', 500);
 
         }
 
@@ -76,8 +68,14 @@ class UserGoogleLoginController extends Controller implements AuthInterface
             $statusCode = 201;
 
         }
+        
+        $output_data = array(
+            'bearerToken' => $BearerToken, 
+            'provider' => 'Google', 
+            'bearerTokenExp' => $BearerTokenExp
+        );
 
-        return response()->json(['data' => $BearerToken, 'provider' => "Google", 'bearerTokenExp' => $BearerTokenExp], $statusCode);
+        return Controller::ApiResponceSuccess($output_data, $statusCode);
 
     }  
 

@@ -36,11 +36,11 @@ class UserLoginController extends Controller implements AuthInterface
 
             $user->sendEmailVerificationNotification();
 
-            return response()->json(['error' => 'User email is not verified. Email sended to '. $user->email], 422);
+            return Controller::ApiResponceError('User email is not verified. Email sended to '. $user->email, 422);
            
         }else if( $user->provider_name == 'google'){
               
-            return  response()->json(["error" => "User register via Google"], 422);
+            return Controller::ApiResponceError('User register via Google', 422);
         
         }else{
 
@@ -48,7 +48,7 @@ class UserLoginController extends Controller implements AuthInterface
             
             if(!$password_check) {
 
-              return  response()->json(["errors" => "Password mismatch"], 422);
+              return Controller::ApiResponceError('Password mismatch', 422);
            
             }
 
@@ -59,9 +59,14 @@ class UserLoginController extends Controller implements AuthInterface
              $BearerToken = $Token->accessToken;
              
              $BearerTokenExp = $Token->token->expires_at->diffInMinutes(Carbon::now());
-
-            return response()->json(['data' => $BearerToken, 'provider' => "Login form", 'bearerTokenExp' => $BearerTokenExp], 200);
-            
+             
+             $output_data = array(
+               'data' => $BearerToken,
+               'provider' => 'Login form', 
+               'bearerTokenExp' => $BearerTokenExp
+             );
+   
+             return Controller::ApiResponceSuccess($output_data, 200);
         }      
     }
 

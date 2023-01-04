@@ -15,15 +15,6 @@ class UserRegisterController extends Controller
 
     public function register($request):JsonResponse{
 
-     // validating request data
-    $validator = AuthHelper::registerRequestValidate($request);   
-
-    if($validator->fails()){
-
-      return response()->json(['error'=>$validator->errors()->all()], 422);
-
-    }
-
 
     $request['password'] = Hash::make($request['password']);
 
@@ -33,14 +24,15 @@ class UserRegisterController extends Controller
 
     if(!$user){
 
-        return response()->json(['error' => 'user login form registering problem'], 500);
+        return Controller::ApiResponceError('user login form registering problem', 500);
 
     }
 
     // send verify email to registered user
     $user->sendEmailVerificationNotification();
 
-    return response()->json(['error' => 'user login form register. Email is not verified. Email sended to '.$user->email], 202);
+    return Controller::ApiResponceSuccess('user login form register. Email is not verified. Email sended to '.$user->email, 202);
+
 }
 
 }

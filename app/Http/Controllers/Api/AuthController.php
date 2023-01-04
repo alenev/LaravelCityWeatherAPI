@@ -24,7 +24,7 @@ class AuthController extends Controller
 
         }else{
 
-            return response()->json(['error' => 'input data validation error'], 404);
+            return Controller::ApiResponceError('input data validation error', 404);
         }
         
         $login = $auth->login($request);

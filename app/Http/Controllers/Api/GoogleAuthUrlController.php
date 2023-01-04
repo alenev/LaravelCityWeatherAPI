@@ -17,11 +17,11 @@ class GoogleAuthUrlController extends Controller
 
         if(!empty($GoogleAuthUrl['error'])){
     
-            return response()->json(['error' => $GoogleAuthUrl['error']], $GoogleAuthUrl['status']);
+            return Controller::ApiResponceError($GoogleAuthUrl['error'], $GoogleAuthUrl['status']);
        
         }else{
 
-            return response()->json(['data' => $GoogleAuthUrl], 200);
+            return Controller::ApiResponceSuccess($GoogleAuthUrl, 200);
         }
 
     }
