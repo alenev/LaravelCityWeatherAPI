@@ -13,6 +13,7 @@ class Weather extends Model
     use HasFactory;
 
     protected $table = 'weather';
+    protected $primaryKey = 'id';
     protected $fillable = [
         'city',
         'data'
@@ -50,11 +51,7 @@ class Weather extends Model
 
         $this->fill($fields);
 
-        $nowtime = Carbon::now();
-
-        $nowtimeDB = Carbon::parse($nowtime)->format('Y-m-d H:i:s');
-
-        $this->updated_at = $nowtimeDB;
+        $this->updated_at = ApiHelper::getNowTimeDBformat();
 
         $this->save();
 

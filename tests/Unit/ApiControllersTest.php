@@ -120,7 +120,7 @@ class ApiControllersTest extends TestCase
 
                     if($statusCode == 200 || $statusCode == 201){
 
-                    print "\xA".'test_register_and_login data'.json_encode($response_content["data"]);
+                    print "\xA\xA".'test_register_and_login data'.json_encode($response_content);
 
                     $response->assertStatus($statusCode);
 
@@ -182,6 +182,8 @@ class ApiControllersTest extends TestCase
                 print "\xA".'test_getWeather error: '.$response_content['error'];
 
             } else {
+
+            print "\xA\xA".'test_getWeather request content: '.json_encode($response_content);
 
             $response->assertStatus(200)->assertJsonStructure([
               "data" => [

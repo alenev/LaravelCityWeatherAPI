@@ -19,7 +19,7 @@ xyz is Laravel application with API for getting weather data from openweathermap
 # Requirements
 
 This app requires:
-- PHP __8.x__+
+- PHP _8.x_+
 - Redis server on port 6379
 
 # Installation

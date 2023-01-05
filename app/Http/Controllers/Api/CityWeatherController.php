@@ -11,6 +11,8 @@ use App\Helpers\CityWeatherHelper;
 use App\Models\Weather;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CityWeatherController extends Controller
 {
@@ -23,7 +25,7 @@ class CityWeatherController extends Controller
     private bool $city_update = false;
     private array $odataa;
     private object $db_city;
-    private array $debug;
+    private array $info;
 
  
 
@@ -49,7 +51,10 @@ class CityWeatherController extends Controller
             if (!empty($redis_eucity))
             {
                 $this->eucity_from_redis = true;
+
                 $this->eucity = $redis_eucity->{0};
+
+                $this->info['data_from'] = 'redis'; 
 
             }
 
@@ -65,14 +70,14 @@ class CityWeatherController extends Controller
             {
  
                 $this->eucity_from_DB = true;
+
                 $this->eucity = $db_eucity;
 
-                $debug['city_from'] = 'DB'; 
+                $this->info['city_from'] = 'DB'; 
 
             }
 
         } 
-
 
         // check needle city weather data update in redis/DB
         if(empty($this->eucity) || (!empty($this->eucity) && $this->city_update))
@@ -85,7 +90,8 @@ class CityWeatherController extends Controller
 
         }
 
-        
+        $this->info['city_data_updated'] = 'false'; 
+
         // updating city weather data in redis/DB
         if($this->city_update)
         {
@@ -136,13 +142,25 @@ class CityWeatherController extends Controller
         if(!empty($openweathermap_data->temp_max)){
             $odataa["main"]["temp_max"] = round($openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
         }
+
+        $this->info['city_data_updated'] = 'true'; 
+
+        $this->info['updated_at'] = ApiHelper::getNowTimeDBformat();
+
+        $odataa['info'] = $this->info; 
   
         }else{
             
             // get stored weather city data from redis/DB
             $data = json_decode($this->eucity->data); 
 
-            $odataa = (object) $data;
+            $adata = get_object_vars($data);
+
+            $this->info['updated_at'] = ApiHelper::formatDateTimeToDBFormat($this->eucity->updated_at);
+
+            $adata['info'] = $this->info; 
+
+            $odataa = (object) $adata;
         }
 
 
@@ -152,13 +170,25 @@ class CityWeatherController extends Controller
             "data" => json_encode($odataa)
         ];
 
+
         if(!$this->eucity_from_redis && !$this->eucity_from_DB){
 
             $this->db_city = Weather::add($nucity);
 
         }else{
 
-            $this->db_city= Weather::find($this->eucity->id);
+
+            $db_city = Weather::where('city', $this->eucity->city)->get()->first();
+
+            if(!empty($db_city)){
+
+                $this->db_city = $db_city;
+
+            }else{
+
+                $this->db_city = Weather::add($nucity);
+                
+            }
 
             if(!empty($this->db_city)){
 
