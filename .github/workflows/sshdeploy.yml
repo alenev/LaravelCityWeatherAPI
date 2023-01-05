@@ -1,0 +1,68 @@
+#https://github.com/marketplace/actions/ssh-deploy
+
+name: SSH deploy to Ubuntu VPS
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@main
+      env:
+          SSH_PRIVATE_KEY: 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
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "/"
+          REMOTE_HOST: "xyz.alenev.name"
+          REMOTE_USER: "admin"
+          TARGET: "/home/admin/web/xyz.alenev.name/public_html/"
