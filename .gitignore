@@ -16,3 +16,5 @@ yarn-error.log
 /public/uploads
 /tests/coverage
 /vuedemo
+composer.lock
+package-lock.json
