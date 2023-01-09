@@ -51,46 +51,65 @@
 <script type="text/javascript">
 
     function hidePreloader(){
+
         let preloader = document.getElementById('preloader');
+
         preloader.style.display = "none";
+
     }
     function showPreloader(){
+
         let preloader = document.getElementById('preloader');
+
         preloader.style.display = "block";
     }
     function showLogin(){
+
         login_box.style.display = "block";
         logged_in_box.style.display = "none";
+
     }
     
     function hideLogin(){
+
         login_box.style.display = "none";
         logged_in_box.style.display = "block";
+
     }
+
 
     function RenderHomePage(){ 
 
-       showPreloader();
-
        let xyz_access_token = localStorage.getItem('xyz_access_token');
+
        if(xyz_access_token && xyz_access_token.length > 1){
 
+
        let geo_latitude = localStorage.getItem('geo_latitude');
+
        let geo_longitude = localStorage.getItem('geo_longitude'); 
+
        let geo_city = localStorage.getItem('geo_city'); 
        
-       if((geo_latitude && geo_latitude.length < 1) || (geo_longitude && geo_longitude.length < 1) || (geo_city && geo_city < 1)){
+       if((geo_latitude && geo_latitude.length < 1) || (geo_longitude && geo_longitude.length < 1) || (geo_city && geo_city < 1))
+       {
+           
             alert("Geolocation data empty. Refresh page.");
+
             let urlObj = new URL(window.location);
+
             urlObj.search = '';
+
             let rurl = urlObj.toString();
+
             window.location.href = rurl;
   
         }
-  
+          showPreloader();
+
           let atoken = 'Bearer '+xyz_access_token+'';
- 
-           fetch('api/home?' + new URLSearchParams({
+
+           fetch('api/city_weather?' + new URLSearchParams({
             geo_latitude: geo_latitude,
             geo_longitude: geo_longitude,
             geo_city: geo_city
@@ -104,68 +123,101 @@
          })
          .then(function(response) {
 
+          
+
+          return response.json().then((data) => {
+
+          if(data.error && data.error.indexOf('geodata') > -1){
+
+               hidePreloader();
+
+               alert('Geodata receive problem. Refresh page.');
+
+          }
+
+        
+        if(data.data.main.city){
+
+        let el = document.getElementById('weather_UI_city'); 
+
+        let text = document.createTextNode(data.data.main.city);
+
+        el.appendChild(text); 
+
+        }
+
+        if(data.data.main.temp){
+
+        let el = document.getElementById('weather_UI_temp'); 
+
+        let text = document.createTextNode(data.data.main.temp+"°C");
+
+        el.appendChild(text); 
+
+        }
+
+        if(data.data.main.pressure){
+
+        let el = document.getElementById('weather_UI_pressure'); 
+
+        let text = document.createTextNode("pressure: "+data.data.main.pressure);
+
+        el.appendChild(text); 
+
+        }
+
+        if(data.data.main.humidity){
+
+        let el = document.getElementById('weather_UI_humidity'); 
+
+        let text = document.createTextNode("humidity "+data.data.main.humidity);
+
+        el.appendChild(text); 
+
+        }
+
+        if(data.data.main.temp_min){
+
+        let el = document.getElementById('weather_UI_temp_min'); 
+
+        let text = document.createTextNode("temp min "+data.data.main.temp_min+"°C");
+
+        el.appendChild(text); 
+
+        }
+
+        if(data.data.main.temp_max){
+
+        let el = document.getElementById('weather_UI_temp_max'); 
+
+        let text = document.createTextNode("temp max "+data.data.main.temp_max+"°C");
+
+        el.appendChild(text); 
+
+        }
+
         hidePreloader();
 
-            return response.json().then((data) => {
-
-             if(data.error && data.error.indexOf('geodata') > -1){
-               alert('Geodata receive problem. Refresh page.');
-            }
-
-        if(!data.main){
-		  data = data[0];
-		}
-        
-        if(data.main.city){
-        let el = document.getElementById('weather_UI_city'); 
-        let text = document.createTextNode(data.main.city);
-        el.appendChild(text); 
-        }
-
-        if(data.main.temp){
-        let el = document.getElementById('weather_UI_temp'); 
-        let text = document.createTextNode(data.main.temp+"°C");
-        el.appendChild(text); 
-        }
-
-        if(data.main.pressure){
-        let el = document.getElementById('weather_UI_pressure'); 
-        let text = document.createTextNode("pressure: "+data.main.pressure);
-        el.appendChild(text); 
-        }
-
-        if(data.main.humidity){
-        let el = document.getElementById('weather_UI_humidity'); 
-        let text = document.createTextNode("humidity "+data.main.humidity);
-        el.appendChild(text); 
-        }
-
-        if(data.main.temp_min){
-        let el = document.getElementById('weather_UI_temp_min'); 
-        let text = document.createTextNode("temp min "+data.main.temp_min+"°C");
-        el.appendChild(text); 
-        }
-
-        if(data.main.temp_max){
-        let el = document.getElementById('weather_UI_temp_max'); 
-        let text = document.createTextNode("temp max "+data.main.temp_max+"°C");
-        el.appendChild(text); 
-        }
-
             }).catch((err) => {
+
                 console.log(err);
+                hidePreloader();
             }) 
 
-            hidePreloader();
+           
          })
           .catch(function(error) {
+
               console.error('Error:', error);
+
               hidePreloader();
+
           });
 
         }else{
 
             showLogin();
+
             hidePreloader();
 
         }
@@ -173,9 +225,9 @@
 
 
     function checkUserAuth(){
+
        let xyz_access_token = localStorage.getItem('xyz_access_token');
 	   
-console.log("xyz_access_token: "+xyz_access_token);
        if(xyz_access_token && xyz_access_token.length > 1){
 
           $atoken = 'Bearer '+xyz_access_token+'';
@@ -191,29 +243,42 @@ console.log("xyz_access_token: "+xyz_access_token);
          .then(function(response) {
 
             if(response.status && response.status == 200){
+
                 hideLogin();
                 RenderHomePage();
+
                }else{
+
                 showLogin();
+                hidePreloader();
+
                }
-               hidePreloader();
+
+               
                
          })
           .catch(function(error) {
+
               console.error('Error:', error);
+
               hidePreloader();
+
           });
 
 
         }else{
 
             showLogin();
+
             hidePreloader();
+
         }
     }
 
     async function logout(){
+
         let xyz_access_token = localStorage.getItem('xyz_access_token');
+
         if(xyz_access_token && xyz_access_token.length > 1){
 
           $atoken = 'Bearer '+xyz_access_token+'';
@@ -239,7 +304,9 @@ console.log("xyz_access_token: "+xyz_access_token);
 
 
         }else{
+
             console.log('xyz_access_token not found');
+
         }
 
         }
@@ -248,8 +315,10 @@ console.log("xyz_access_token: "+xyz_access_token);
         async function google_login_API(code, remember){
 
         let token = document.querySelector('input[name=_token]').value;
+        
         let login_data = JSON.stringify({'auth_code': code, 'remember': remember});
-        await fetch('api/login', {
+
+        await fetch('api/auth', {
             method: 'POST', 
             headers: {
                'Content-Type': 'application/json',
@@ -267,23 +336,32 @@ console.log("xyz_access_token: "+xyz_access_token);
                     showLogin();
                     hidePreloader();
 
-                }else if(data && data.length > -1){
+                }else if(data.data.bearerToken && data.data.bearerToken.length > -1){
 
-                  localStorage.setItem('xyz_access_token', data);
+                  localStorage.setItem('xyz_access_token', data.data.bearerToken);
               
                   let urlObj = new URL(window.location);
                   urlObj.search = '';
                   let rurl = urlObj.toString();
 				  localStorage.setItem('google_login_frontend', 'false');
-                  window.location.href = rurl;         
+                  window.location.href = rurl; 
+
+                }else{
+
+                    console.log("api/auth get bearerToken error");
+
                 }
 
             }).catch((err) => {
+
                 console.log('error '+err);
+
             }) 
          })
           .catch(function(error) {
+
               console.error('Error:', error);
+
           });
       }
 
@@ -304,7 +382,7 @@ console.log("xyz_access_token: "+xyz_access_token);
 
              return response.json().then((data) => {
 
-              window.location = data;
+              window.location = data.data;
 
             }).catch((err) => {
                 console.log(err);
@@ -371,7 +449,8 @@ console.log("xyz_access_token: "+xyz_access_token);
       let geo_latitude = localStorage.getItem('geo_latitude');
       let geo_longitude = localStorage.getItem('geo_longitude'); 
       let geo_city = localStorage.getItem('geo_city');
-      console.log("Latitude: " + geo_latitude +
+
+      console.log("Geo Location data: Latitude: " + geo_latitude +
       "Longitude: " + geo_longitude +" City: "+geo_city);
       
     }); 
@@ -418,5 +497,3 @@ console.log("xyz_access_token: "+xyz_access_token);
 
     </body>
 </html>
-
-
