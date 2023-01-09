@@ -42,26 +42,34 @@ In the file /config/app.php change the 'url' parameter to http://example.com
 In the /google_api_config.json file, change the Google oAuth API credential data to be relevant for the http://example.com domain. In parameters 'redirect_uris' and 'javascript_origins' domain http://example.com
 ```
 
+
 ```shell
-composer install
+composer install #install packages
 ```
 
 ```shell
-php artisan migrate
-```
-```shell
-php artisan passport:install
+php artisan migrate #create database structure
 ```
 
 ```shell
-redis-server config/redis.conf
+php artisan passport:install #install and config Laravel passport package for auth
+```
+
+```shell
+redis-server --port 6379 #run Redis server for caching
+or
+redis-server --port 6379 --daemonize yes #run Redis server in background
 ```
 
 # API
 
-https://documenter.getpostman.com/view/11745573/2s8YzP3QZh
+API points documentation in Postman:
+https://documenter.getpostman.com/view/11745573/2s8Z75TVy4
 
-# Testing
+API points collection in Postman for manual testing:
+https://elements.getpostman.com/redirect?entityId=11745573-48690b4c-5492-4ba9-a1cd-c63c257664ac&entityType=collection
+
+# PHPUnit testing
 
 - to test Google oAuth (test_getGoogleLoginUrl) the GOOGLE_OAUTH_TEST parameter in /phpunit.xml must be set to 'true'. The console will display the authorization URL for Google oAuth in the browser
 - after authorization in the browser and redirect from the address bar of the browser, you need to copy the value of the 'code' parameter and paste it into the GOOGLE_OAUTH_TEST_CODE parameter in /phpunit.xml After that, the test of exchanging the Google oAuth authorization code for the Passport access token (test_login_google) will display the token in the console
