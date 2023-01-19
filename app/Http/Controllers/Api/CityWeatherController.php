@@ -31,7 +31,15 @@ class CityWeatherController extends Controller
 
     public function index(CityWeatherRequest $request):JsonResponse
     {
-       
+       if (isset($request->validator) && $request->validator->fails()) { 
+ 
+          $validation_errors = $request->validator->errors()->messages();
+		  
+          $validation_errors_first = current((array)$validation_errors);
+		  
+          return Controller::ApiResponceError($validation_errors_first[0], 404); 
+
+       }
     
         $data_geo = array(
           "latitude" => $request["geo_latitude"],

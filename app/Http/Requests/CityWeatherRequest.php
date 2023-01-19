@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CityWeatherRequest extends FormRequest
 {
+	public $validator = null;
+	
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,5 +30,10 @@ class CityWeatherRequest extends FormRequest
             'geo_longitude' => 'required|numeric',
             'geo_city' => 'required|string'
         ];
+    }
+	
+	protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $this->validator = $validator;
     }
 }

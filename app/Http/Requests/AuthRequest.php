@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class AuthRequest extends FormRequest
 {
+	public $validator = null;
+	
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -58,14 +60,11 @@ class AuthRequest extends FormRequest
            // 'remember' => 'string' // debug
         ];
     }
-
-    public function messages()
-    {      
-        
-        return [
-          
-          //  'remember.string' => '' // debug
-        ];
+	
+	
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $this->validator = $validator;
     }
 
 }

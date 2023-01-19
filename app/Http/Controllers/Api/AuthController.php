@@ -11,8 +11,15 @@ class AuthController extends Controller
 {
      public function auth(AuthRequest $request):JsonResponse
      {
-       
-        if(!empty($request['auth_code'])){
+       if (isset($request->validator) && $request->validator->fails()) { 
+ 
+          $validation_errors = $request->validator->errors()->messages();
+		  
+          $validation_errors_first = current((array)$validation_errors);
+		  
+          return Controller::ApiResponceError($validation_errors_first[0], 404); 
+
+       }else if(!empty($request['auth_code'])){
             
             // login or register user via Google 
             $auth = new UserGoogleLoginController();
@@ -22,9 +29,6 @@ class AuthController extends Controller
             // login or register user via email and password
             $auth = new UserLoginController();
 
-        }else{
-
-            return Controller::ApiResponceError('input data validation error', 404);
         }
         
         $login = $auth->login($request);
