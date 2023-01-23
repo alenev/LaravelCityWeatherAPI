@@ -16,7 +16,7 @@ jobs:
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       env:
-          SSH_PRIVATE_KEY: ${{secrets.CONTABO_SSH_06012023_1}}
+          SSH_PRIVATE_KEY: ${{secrets.CONTABO_SSH_01232023_1}}
           ARGS: "-rlgoDzvc -i --delete"
           REMOTE_HOST: "xyz.alenev.name"
           REMOTE_USER: "admin"
