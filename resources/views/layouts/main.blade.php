@@ -343,7 +343,6 @@
                   let urlObj = new URL(window.location);
                   urlObj.search = '';
                   let rurl = urlObj.toString();
-				  localStorage.setItem('google_login_frontend', 'false');
                   window.location.href = rurl; 
 
                 }else{
@@ -400,7 +399,7 @@
     const urlParams = new URLSearchParams(queryString);
 	const urlst = new URL(window.location); 
     const code = urlParams.get('code');
-	let google_login_frontend = localStorage.getItem('google_login_frontend');
+	let google_login_frontend = false;
     let geo_latitude = null;
     let geo_longitude = null;
 
@@ -430,15 +429,20 @@
       google_logout_button.onclick = async () => {
       await logout();
       }
-	
-      if(code && code.length > 1 && google_login_frontend == 'true'){
+
+
+
+        if(code && code.length > 1){
+        google_login_frontend = localStorage.getItem('google_login_frontend'); 
+        if(google_login_frontend == 'true'){ 
         let remember = localStorage.getItem('remember');
         if(remember && remember == 1){
         localStorage.setItem('remember', 0);
         }  
         localStorage.setItem('google_auth_code', code);
         google_login_API(code, remember);
-
+        localStorage.setItem('google_login_frontend', 'false');
+        }
       }else{
         localStorage.setItem('remember', 0);
         checkUserAuth();

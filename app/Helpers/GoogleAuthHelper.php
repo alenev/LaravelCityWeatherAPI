@@ -80,7 +80,7 @@ class GoogleAuthHelper {
         $accessTokenInfo = json_decode(json_encode($accessToken));
 
         if(!empty($accessTokenInfo->error)){
-
+            
           return ['error' => 'invalid_grant', 'status' => 406];
 
         }

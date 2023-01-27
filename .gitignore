@@ -18,3 +18,4 @@ yarn-error.log
 /vuedemo
 composer.lock
 package-lock.json
+google_api_config.json

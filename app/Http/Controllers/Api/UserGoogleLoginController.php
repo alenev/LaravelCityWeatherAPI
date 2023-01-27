@@ -20,7 +20,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
         
         // exchange Google Auth Code to Google access token object
         $GoogleAccessToken = GoogleAuthHelper::GoogleAuthCodeToAccesToken($request["auth_code"]);
-
+   
         if(!is_object($GoogleAccessToken) && !empty($GoogleAccessToken['error'])){
 
            return Controller::ApiResponceError($GoogleAccessToken['error'], $GoogleAccessToken['status']);
