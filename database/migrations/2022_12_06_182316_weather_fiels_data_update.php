@@ -26,7 +26,7 @@ class WeatherFielsDataUpdate extends Migration
     public function down()
     {
         Schema::table('weather', function (Blueprint $table) {
-            $table->string('data')->nullable()->change();
+           // $table->string('data')->nullable()->change();
         });
     }
 }
