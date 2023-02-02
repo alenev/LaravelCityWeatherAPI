@@ -131,24 +131,32 @@ class CityWeatherController extends Controller
         );
 
 
-        if(!empty($openweathermap_data->temp)){
+        if(isset($openweathermap_data->temp)){
             $odataa["main"]["temp"] = round($openweathermap_data->temp, 0, PHP_ROUND_HALF_UP);
         }
         
-        if(!empty($openweathermap_data->pressure)){
+        if(isset($openweathermap_data->pressure)){
             $odataa["main"]["pressure"] = $openweathermap_data->pressure;
         }
         
-        if(!empty($openweathermap_data->humidity)){
+        if(isset($openweathermap_data->humidity)){
             $odataa["main"]["humidity"] = $openweathermap_data->humidity;
         }
 
-        if(!empty($openweathermap_data->temp_min)){
-            $odataa["main"]["temp_min"] = round($openweathermap_data->temp_min, 0, PHP_ROUND_HALF_UP);   
+        if(isset($openweathermap_data->temp_min)){
+            if(!empty($openweathermap_data->temp_min)){
+                $odataa["main"]["temp_min"] = round($openweathermap_data->temp_min, 0, PHP_ROUND_HALF_UP);   
+            }else{
+                $odataa["main"]["temp_min"] = 0;   
+            }
         }
         
-        if(!empty($openweathermap_data->temp_max)){
-            $odataa["main"]["temp_max"] = round($openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
+        if(isset($openweathermap_data->temp_max)){
+            if(!empty($openweathermap_data->temp_max)){
+               $odataa["main"]["temp_max"] = round($openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
+            }else{
+               $odataa["main"]["temp_max"] = 0;
+            }
         }
 
         $this->info['city_data_updated'] = 'true'; 

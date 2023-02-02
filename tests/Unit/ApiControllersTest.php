@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Passport;
 
 class ApiControllersTest extends TestCase
@@ -90,21 +89,12 @@ class ApiControllersTest extends TestCase
     public function test_register_and_login()
     {
         if (!env('GOOGLE_OAUTH_TEST')) {
-
-        User::factory()->create([
-            "first_name" => "first_name",
-            "last_name" => "last_name",
-            "email" => "testmail@example.com",
-            "password" => Hash::make("12345678")
-        ]);    
-
-        $user = User::where('email', 'testmail@example.com')->get()->first();
         
-        if(!empty($user)){     
+        if(!empty(User::where('email', $this->user->email)->get()->first())){     
         
         $payload = [
             "auth_code" => '',
-            "email" => "testmail@example.com",
+            "email" => $this->user->email,
             "password" => "12345678",
             "remember" => 1,
             "noverify_email" => true
@@ -158,20 +148,13 @@ class ApiControllersTest extends TestCase
     public function test_getWeather()
     {
          
+            Passport::actingAs($this->user);
+
             $payload = [
                "geo_latitude" => "50.4676612",
                "geo_longitude" => "30.4051859",
                "geo_city" => "Kyiv"
             ];
-
-            Passport::actingAs(
-                User::factory()->create([
-                    "first_name" => "first_name",
-                    "last_name" => "last_name"
-                ]),
-                ['api/city_weather']
-            );
-
 
             $response = $this->json('GET', 'api/city_weather', $payload);
 
