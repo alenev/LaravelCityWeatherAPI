@@ -8,7 +8,8 @@ class ApiHelpersServiceProvider extends ServiceProvider
 {
     protected $helpers = [
         'GoogleAuthHelper',
-        'AuthHelper'
+        'AuthHelper',
+        'DataHelper'
     ];
 
     /**

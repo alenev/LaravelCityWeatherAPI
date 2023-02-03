@@ -24,15 +24,15 @@ public static function setBearerAccessTokenExpiration(?int $remember):void
 
 if($remember == '1'){
 
-    $BearerToken_exp = 60;
+    $barerTokenExp = 60;
 
 }else{
 
-    $BearerToken_exp = 3;
+    $barerTokenExp = 3;
 
 }
 
- Passport::personalAccessTokensExpireIn(now()->addMinutes($BearerToken_exp));
+ Passport::personalAccessTokensExpireIn(now()->addMinutes($barerTokenExp));
 
 }
 

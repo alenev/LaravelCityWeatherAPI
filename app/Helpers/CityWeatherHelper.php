@@ -12,10 +12,10 @@ use App\Models\Weather;
 
 class CityWeatherHelper{
 
-public static function openweathermap($data_geo):array
+public static function openweathermap($geoData):array
 {
     
-        $url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$data_geo["latitude"].'&lon='.$data_geo["longtitude"].'&units=metric&appid=ab616f96e7078ab6ec4b8876d0d08a5b';
+        $url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$geoData["latitude"].'&lon='.$geoData["longtitude"].'&units=metric&appid=ab616f96e7078ab6ec4b8876d0d08a5b';
         $client = new \GuzzleHttp\Client();
         $res = $client->get($url, []);
         $status = $res->getStatusCode(); 
@@ -31,21 +31,21 @@ public static function openweathermap($data_geo):array
         return $output;
 }
 
-public static function getCityFromRedis(string $ucity):object|null
+public static function getCityFromRedis(string $userCity):object|null
 {
-    $redis_eucity = Redis::get('city_'.$ucity); 
+    $redisUserCity = Redis::get('city_'.$userCity); 
 
-    $val = (!empty($redis_eucity)) ? (object) json_decode($redis_eucity) : null;
+    $data = (!empty($redisUserCity)) ? (object) json_decode($redisUserCity) : null;
 
-    return $val;
+    return $data;
 
 }
 
-public static function getCityFromDB(string $ucity):object|null
+public static function getCityFromDB(string $userCity):object|null
 {
-    $db_eucity = Weather::where('city', $ucity)->get()->first();
+    $data = Weather::where('city', $userCity)->get()->first();
 
-    return $db_eucity;
+    return $data;
 
 } 
 

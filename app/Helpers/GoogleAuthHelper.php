@@ -49,17 +49,17 @@ class GoogleAuthHelper {
     {
 
 
-        $GoogleClient = GoogleAuthHelper::getGoogleClient($GoogleClientRedirectUrl);
+        $googleClient = GoogleAuthHelper::getGoogleClient($GoogleClientRedirectUrl);
 
-        $GoogleAuthUrl = $GoogleClient->createAuthUrl();
+        $googleAuthUrl = $googleClient->createAuthUrl();
         
-        if(empty($GoogleAuthUrl)){
+        if(empty($googleAuthUrl)){
 
            return ['error' => 'get google auth url problem', 'status' => 503];
       
         }
 
-        return $GoogleAuthUrl;
+        return $googleAuthUrl;
         
     }
 
@@ -67,15 +67,15 @@ class GoogleAuthHelper {
     public static function GoogleAuthCodeToAccesToken(?string $AuthCode):array|object
     {   
 
-        $GoogleClient = GoogleAuthHelper::getGoogleClient();
+        $googleClient = GoogleAuthHelper::getGoogleClient();
 
-        if (!$GoogleClient){
+        if (!$googleClient){
 
             return ['error' => 'google client false', 'status' => 503];
 
         }
 
-        $accessToken = $GoogleClient->fetchAccessTokenWithAuthCode($AuthCode);
+        $accessToken = $googleClient->fetchAccessTokenWithAuthCode($AuthCode);
 
         $accessTokenInfo = json_decode(json_encode($accessToken));
 
@@ -85,9 +85,9 @@ class GoogleAuthHelper {
 
         }
         
-        $GoogleClient->setAccessToken(json_encode($accessToken));
+        $googleClient->setAccessToken(json_encode($accessToken));
 
-        return $GoogleClient;
+        return $googleClient;
     }
 
     public static function GoogleLoginRequestValidate($request)
@@ -108,11 +108,11 @@ class GoogleAuthHelper {
         ->where('provider_id', '=', $userFromGoogle->id)
         ->first();
 
-        $avatar_img = file_get_contents($userFromGoogle->picture);
+        $avatarImg = file_get_contents($userFromGoogle->picture);
 
-        $avatar_img_size = getimagesize($userFromGoogle->picture);
+        $avatarImgSize = getimagesize($userFromGoogle->picture);
 
-        $avatar_img_extension = image_type_to_extension($avatar_img_size[2]);
+        $avatarImgExtension = image_type_to_extension($avatarImgSize[2]);
 
     $uploadAvatar = null;
 
@@ -129,7 +129,7 @@ class GoogleAuthHelper {
                 'last_name' => $userFromGoogle->familyName
            ]);
 
-        $uploadAvatar = $user->uploadAvatar($avatar_img, $avatar_img_extension);
+        $uploadAvatar = $user->uploadAvatar($avatarImg, $avatarImgExtension);
         
         $user->event = 'register';
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
-use App\Helpers\APIHelper;
+use App\Helpers\DataHelper;
 
 class Weather extends Model
 {
@@ -28,7 +28,7 @@ class Weather extends Model
         $city->save();
 
     
-        if(APIHelper::redisAvailable()){
+        if(DataHelper::redisAvailable()){
 
 
         if($city->redisStorageUpdate($fields['city'])){
@@ -51,12 +51,12 @@ class Weather extends Model
 
         $this->fill($fields);
 
-        $this->updated_at = ApiHelper::getNowTimeDBformat();
+        $this->updated_at = DataHelper::getNowTimeDBformat();
 
         $this->save();
 
 
-        if(APIHelper::redis_available()){
+        if(DataHelper::redisAvailable()){
 
 
         if($this->redisStorageUpdate($fields['city'])){

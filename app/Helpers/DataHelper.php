@@ -5,7 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Redis;
 use Carbon\Carbon;
 
-class APIHelper{
+class DataHelper{
 
 
 public static function redisAvailable():bool
@@ -13,8 +13,8 @@ public static function redisAvailable():bool
 
     try{
 
-        $redis = Redis::connect('127.0.0.1', env('REDIS_PORT'));
-
+        $redis = Redis::connect(env('REDIS_HOST'), env('REDIS_PORT'));
+        
         return true;
 
     }catch(\Predis\Connection\ConnectionException $e){ 

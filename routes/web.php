@@ -16,7 +16,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
 Route::get('/', '\App\Http\Controllers\HomeController@index')->name('index');
-Route::get('/login', '\App\Http\Controllers\HomeController@login')->name('login');
+Route::get('/login', '\App\Http\Controllers\HomeController@index')->name('login');
 Route::get('/email/verify/{id}/{hash}', '\App\Http\Controllers\VerifyEmailController@set')->name('verification.verify');
 Route::get('/email_verify_success', '\App\Http\Controllers\HomeController@emailVerifySuccess')->name('verification.success');
 
