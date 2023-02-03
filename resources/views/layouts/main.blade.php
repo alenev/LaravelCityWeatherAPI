@@ -136,7 +136,7 @@
           }
 
         
-        if(data.data.main.city){
+        if(typeof data.data.main.city !== 'undefined'){
 
         let el = document.getElementById('weather_UI_city'); 
 
@@ -146,7 +146,7 @@
 
         }
 
-        if(data.data.main.temp){
+        if(typeof data.data.main.temp !== 'undefined'){
 
         let el = document.getElementById('weather_UI_temp'); 
 
@@ -156,7 +156,7 @@
 
         }
 
-        if(data.data.main.pressure){
+        if(typeof data.data.main.pressure !== 'undefined'){
 
         let el = document.getElementById('weather_UI_pressure'); 
 
@@ -166,7 +166,7 @@
 
         }
 
-        if(data.data.main.humidity){
+        if(typeof data.data.main.humidity !== 'undefined'){
 
         let el = document.getElementById('weather_UI_humidity'); 
 
@@ -176,7 +176,7 @@
 
         }
 
-        if(data.data.main.temp_min){
+        if(typeof data.data.main.temp_min !== 'undefined'){
 
         let el = document.getElementById('weather_UI_temp_min'); 
 
@@ -186,7 +186,7 @@
 
         }
 
-        if(data.data.main.temp_max){
+        if(typeof data.data.main.temp_max !== 'undefined'){
 
         let el = document.getElementById('weather_UI_temp_max'); 
 
