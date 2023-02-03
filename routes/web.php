@@ -14,31 +14,14 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/login', function () {
-    return view('loginVUE');
-});
-
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/home', function () {
-        return view('home');
-    });
-});
-
+Route::get('/', '\App\Http\Controllers\HomeController@index')->name('index');
+Route::get('/login', '\App\Http\Controllers\HomeController@login')->name('login');
 Route::get('/email/verify/{id}/{hash}', '\App\Http\Controllers\VerifyEmailController@set')->name('verification.verify');
+Route::get('/email_verify_success', '\App\Http\Controllers\HomeController@emailVerifySuccess')->name('verification.success');
 
-
-Route::get('/email_verify_success', function () {
-    return view('email_verify_success');
-});
-
-Route::get('/vuedemo', function () {
-    return Redirect::to('/vuedemo/public');
-   // return File::get(env('APP_URL').'/vuedemo/public/index.html');
-});
+// Route::get('/vuedemo', function () {
+//     return Redirect::to('/vuedemo/public');
+// });
 
 
