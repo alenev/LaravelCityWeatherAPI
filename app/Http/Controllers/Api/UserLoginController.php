@@ -36,11 +36,11 @@ class UserLoginController extends Controller implements AuthInterface
 
             $user->sendEmailVerificationNotification();
 
-            return Controller::ApiResponceError('User email is not verified. Email sended to '. $user->email, 422);
+            return Controller::apiResponceError('User email is not verified. Email sended to '. $user->email, 422);
            
         }else if( $user->provider_name == 'google'){
               
-            return Controller::ApiResponceError('User register via Google', 422);
+            return Controller::apiResponceError('User register via Google', 422);
         
         }else{
 
@@ -48,7 +48,7 @@ class UserLoginController extends Controller implements AuthInterface
             
             if(!$password_check) {
 
-              return Controller::ApiResponceError('Password mismatch', 422);
+              return Controller::apiResponceError('Password mismatch', 422);
            
             }
 
@@ -66,7 +66,7 @@ class UserLoginController extends Controller implements AuthInterface
                'bearerTokenExp' => $BearerTokenExp
              );
    
-             return Controller::ApiResponceSuccess($output_data, 200);
+             return Controller::apiResponceSuccess($output_data, 200);
         }      
     }
 

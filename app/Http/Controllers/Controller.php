@@ -13,7 +13,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected function ApiResponceSuccess(string|array|object $data, int $code = 200):JsonResponse
+    protected function apiResponceSuccess(string|array|object $data, int $code = 200):JsonResponse
     {
         if($code < 200 || $code  > 299)
         {
@@ -62,7 +62,7 @@ class Controller extends BaseController
       
     }
 
-    protected function ApiResponceError(string $message, int $code = 200):JsonResponse
+    protected function apiResponceError(string $message, int $code = 200):JsonResponse
     {
         if($code < 300)
         {

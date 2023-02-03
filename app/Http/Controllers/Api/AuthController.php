@@ -17,7 +17,7 @@ class AuthController extends Controller
 		  
           $validation_errors_first = current((array)$validation_errors);
 		  
-          return Controller::ApiResponceError($validation_errors_first[0], 404); 
+          return Controller::apiResponceError($validation_errors_first[0], 404); 
 
        }else if(!empty($request['auth_code'])){
             

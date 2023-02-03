@@ -12,7 +12,7 @@ use App\Models\Weather;
 
 class CityWeatherHelper{
 
-public static function openweathermap($data_geo)
+public static function openweathermap($data_geo):array
 {
     
         $url = 'https://api.openweathermap.org/data/2.5/weather?lat='.$data_geo["latitude"].'&lon='.$data_geo["longtitude"].'&units=metric&appid=ab616f96e7078ab6ec4b8876d0d08a5b';

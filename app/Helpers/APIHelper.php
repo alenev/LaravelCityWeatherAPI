@@ -8,13 +8,12 @@ use Carbon\Carbon;
 class APIHelper{
 
 
-public static function redis_available():bool
+public static function redisAvailable():bool
 {
 
     try{
 
-       // $redis = Redis::connect('127.0.0.1',3306);
-        $redis = Redis::connect('127.0.0.1',6379);
+        $redis = Redis::connect('127.0.0.1', env('REDIS_PORT'));
 
         return true;
 
@@ -25,7 +24,7 @@ public static function redis_available():bool
     }
 }
 
-public static function NeedUpdateDBitem(string $updated_at = null, int $update_period_seconds):bool
+public static function needUpdateDBitem(string $updated_at = null, int $update_period_seconds):bool
 {
 
     $odate = Carbon::parse($updated_at);

@@ -24,14 +24,14 @@ class UserRegisterController extends Controller
 
     if(!$user){
 
-        return Controller::ApiResponceError('user login form registering problem', 500);
+        return Controller::apiResponceError('user login form registering problem', 500);
 
     }
 
     // send verify email to registered user
     $user->sendEmailVerificationNotification();
 
-    return Controller::ApiResponceSuccess('user login form register. Email is not verified. Email sended to '.$user->email, 202);
+    return Controller::apiResponceSuccess('user login form register. Email is not verified. Email sended to '.$user->email, 202);
 
 }
 

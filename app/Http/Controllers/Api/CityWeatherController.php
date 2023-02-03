@@ -18,14 +18,16 @@ class CityWeatherController extends Controller
 {
     
     private string $ucity;
-    private bool $redis_available = false;
+    private bool $redisAvailable = false;
     private object $eucity;
-    private bool $eucity_from_redis = false;
-    private bool $eucity_from_DB = false;
-    private bool $city_update = false;
+    private bool $eucityFromRedis = false;
+    private bool $eucityFromDB = false;
+    private bool $cityUpdate = false;
     private array $odataa;
-    private object $db_city;
+    private object $dbCity;
     private array $info;
+    private array $openweathermap;    
+    private object $openweathermap_data;
 
  
 
@@ -37,7 +39,7 @@ class CityWeatherController extends Controller
 		  
           $validation_errors_first = current((array)$validation_errors);
 		  
-          return Controller::ApiResponceError($validation_errors_first[0], 404); 
+          return Controller::apiResponceError($validation_errors_first[0], 404); 
 
        }
     
@@ -49,16 +51,16 @@ class CityWeatherController extends Controller
         $this->ucity = $request['geo_city'];
 
         // check redis available
-        $this->redis_available = APIHelper::redis_available();
+        $this->redisAvailable = APIHelper::redisAvailable();
    
         // check exist city weather data in redis
-        if($this->redis_available){
+        if($this->redisAvailable){
 
             $redis_eucity = CityWeatherHelper::getCityFromRedis($this->ucity);
 
             if (!empty($redis_eucity))
             {
-                $this->eucity_from_redis = true;
+                $this->eucityFromRedis = true;
 
                 $this->eucity = $redis_eucity->{0};
 
@@ -77,7 +79,7 @@ class CityWeatherController extends Controller
             if(!empty($db_eucity))
             {
  
-                $this->eucity_from_DB = true;
+                $this->eucityFromDB = true;
 
                 $this->eucity = $db_eucity;
 
@@ -88,26 +90,25 @@ class CityWeatherController extends Controller
         } 
 
         // check needle city weather data update in redis/DB
-        if(empty($this->eucity) || (!empty($this->eucity) && $this->city_update))
+        if(empty($this->eucity) || (!empty($this->eucity) && $this->cityUpdate))
         {
-            $this->city_update = true;
+            $this->cityUpdate = true;
 
         }else{
 
-            $this->city_update = APIHelper::NeedUpdateDBitem($this->eucity->updated_at, env('CITY_WEATHER_UPDATE_PERIOD_SECONDS'));
+            $this->cityUpdate = APIHelper::needUpdateDBitem($this->eucity->updated_at, env('CITY_WEATHER_UPDATE_PERIOD_SECONDS'));
 
         }
 
         $this->info['city_data_updated'] = 'false'; 
 
         // updating city weather data in redis/DB
-        if($this->city_update)
+        if($this->cityUpdate)
         {
-            
-
+ 
         // get new weather city data from Openweathermap API 
-        $openweathermap = CityWeatherHelper::openweathermap($data_geo);
-        $openweathermap_data = $openweathermap["data"]->main;
+        $this->openweathermap = CityWeatherHelper::openweathermap($data_geo);
+        $this->openweathermap_data = $this->openweathermap["data"]->main;
 
         $user = Auth::user();
 
@@ -131,29 +132,29 @@ class CityWeatherController extends Controller
         );
 
 
-        if(isset($openweathermap_data->temp)){
-            $odataa["main"]["temp"] = round($openweathermap_data->temp, 0, PHP_ROUND_HALF_UP);
+        if(isset($this->openweathermap_data->temp)){
+            $odataa["main"]["temp"] = round($this->openweathermap_data->temp, 0, PHP_ROUND_HALF_UP);
         }
         
-        if(isset($openweathermap_data->pressure)){
-            $odataa["main"]["pressure"] = $openweathermap_data->pressure;
+        if(isset($this->openweathermap_data->pressure)){
+            $odataa["main"]["pressure"] = $this->openweathermap_data->pressure;
         }
         
-        if(isset($openweathermap_data->humidity)){
-            $odataa["main"]["humidity"] = $openweathermap_data->humidity;
+        if(isset($this->openweathermap_data->humidity)){
+            $odataa["main"]["humidity"] = $this->openweathermap_data->humidity;
         }
 
-        if(isset($openweathermap_data->temp_min)){
-            if(!empty($openweathermap_data->temp_min)){
-                $odataa["main"]["temp_min"] = round($openweathermap_data->temp_min, 0, PHP_ROUND_HALF_UP);   
+        if(isset($this->openweathermap_data->temp_min)){
+            if(!empty($this->openweathermap_data->temp_min)){
+                $odataa["main"]["temp_min"] = round($this->openweathermap_data->temp_min, 0, PHP_ROUND_HALF_UP);   
             }else{
                 $odataa["main"]["temp_min"] = 0;   
             }
         }
         
-        if(isset($openweathermap_data->temp_max)){
-            if(!empty($openweathermap_data->temp_max)){
-               $odataa["main"]["temp_max"] = round($openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
+        if(isset($this->openweathermap_data->temp_max)){
+            if(!empty($this->openweathermap_data->temp_max)){
+               $odataa["main"]["temp_max"] = round($this->openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
             }else{
                $odataa["main"]["temp_max"] = 0;
             }
@@ -187,38 +188,38 @@ class CityWeatherController extends Controller
         ];
 
 
-        if(!$this->eucity_from_redis && !$this->eucity_from_DB){
+        if(!$this->eucityFromRedis && !$this->eucityFromDB){
 
-            $this->db_city = Weather::add($nucity);
+            $this->dbCity = Weather::add($nucity);
 
         }else{
 
 
-            $db_city = Weather::where('city', $this->eucity->city)->get()->first();
+            $dbCity = Weather::where('city', $this->eucity->city)->get()->first();
 
-            if(!empty($db_city)){
+            if(!empty($dbCity)){
 
-                $this->db_city = $db_city;
+                $this->dbCity = $dbCity;
 
             }else{
 
-                $this->db_city = Weather::add($nucity);
+                $this->dbCity = Weather::add($nucity);
                 
             }
 
-            if(!empty($this->db_city)){
+            if(!empty($this->dbCity)){
 
-                $this->db_city->edit($nucity);
+                $this->dbCity->edit($nucity);
 
             }else{
 
-                $this->db_city = Weather::add($nucity);   
+                $this->dbCity = Weather::add($nucity);   
             }
 
         }  
 
 
-    return Controller::ApiResponceSuccess($odataa, 200);
+    return Controller::apiResponceSuccess($odataa, 200);
 
     }  
 

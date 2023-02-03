@@ -23,7 +23,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
    
         if(!is_object($GoogleAccessToken) && !empty($GoogleAccessToken['error'])){
 
-           return Controller::ApiResponceError($GoogleAccessToken['error'], $GoogleAccessToken['status']);
+           return Controller::apiResponceError($GoogleAccessToken['error'], $GoogleAccessToken['status']);
 
         }
         
@@ -34,7 +34,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
 
         if(empty($userFromGoogle)){
 
-            return Controller::ApiResponceError('user from Google unavailable', 503);
+            return Controller::apiResponceError('user from Google unavailable', 503);
 
         }
 
@@ -45,7 +45,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
 
         if (!$userFromGoogleUpdate) {
         
-            return Controller::ApiResponceError('user Google login error', 500);
+            return Controller::apiResponceError('user Google login error', 500);
 
         }
 
@@ -75,7 +75,7 @@ class UserGoogleLoginController extends Controller implements AuthInterface
             'bearerTokenExp' => $BearerTokenExp
         );
 
-        return Controller::ApiResponceSuccess($output_data, $statusCode);
+        return Controller::apiResponceSuccess($output_data, $statusCode);
 
     }  
 

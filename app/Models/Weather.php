@@ -28,10 +28,10 @@ class Weather extends Model
         $city->save();
 
     
-        if(APIHelper::redis_available()){
+        if(APIHelper::redisAvailable()){
 
 
-        if($city->redis_storage_update($fields['city'])){
+        if($city->redisStorageUpdate($fields['city'])){
 
             return $city;
 
@@ -59,7 +59,7 @@ class Weather extends Model
         if(APIHelper::redis_available()){
 
 
-        if($this->redis_storage_update($fields['city'])){
+        if($this->redisStorageUpdate($fields['city'])){
 
             return true;
 
@@ -75,7 +75,7 @@ class Weather extends Model
  
      }
 
-     protected function redis_storage_update(string $city):bool
+     protected function redisStorageUpdate(string $city):bool
 
      {
         if(Redis::get('city_'.$city) && !Redis::del('city_'.$city)){
