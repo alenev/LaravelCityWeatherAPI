@@ -18,8 +18,8 @@ jobs:
       env:
           SSH_PRIVATE_KEY: ${{secrets.CONTABO_SSH_01232023_1}}
           ARGS: "-rlgoDzvc -i --delete"
-          REMOTE_HOST: "xyz.alenev.name"
+          REMOTE_HOST: "laravelcityweatherapi.alenev.name"
           REMOTE_USER: "admin"
           SOURCE: ""
-          TARGET: "/home/admin/web/xyz.alenev.name/public_html"
+          TARGET: "/home/admin/web/laravelcityweatherapi.alenev.name/public_html"
           EXCLUDE: "/.git/, /.github/, /vendor/, .env, google_api_config.json, /database/database.sqlite"
