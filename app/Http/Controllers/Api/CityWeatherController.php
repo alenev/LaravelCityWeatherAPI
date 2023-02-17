@@ -151,32 +151,31 @@ class CityWeatherController extends Controller
             }
         }
         
-        if(isset($this->openweathermap_data->temp_max)){
-            if(!empty($this->openweathermap_data->temp_max)){
+        if (isset($this->openweathermap_data->temp_max)) {
+            if (!empty($this->openweathermap_data->temp_max)) {
                $this->outputData["main"]["temp_max"] = round($this->openweathermap_data->temp_max, 0, PHP_ROUND_HALF_UP); 
-            }else{
+            } else {
                $this->outputData["main"]["temp_max"] = 0;
             }
         }
-
         $this->outputInfo['city_data_updated'] = 'true'; 
-
         $this->outputInfo['updated_at'] = DataHelper::getNowTimeDBformat();
-
         $this->outputData['info'] = $this->outputInfo; 
-  
-        }else{
+        } else {
             
             // get stored weather city data from redis/DB
             $data = json_decode($this->existUserCityData->data); 
-
-            $adata = get_object_vars($data);
+  
+            if (getType($data) === 'object') {
+               $adata = json_decode(json_encode($data), true);
+             } else {
+                $adata = $data;
+             } 
 
             $this->outputInfo['updated_at'] = DataHelper::formatDateTimeToDBFormat($this->existUserCityData->updated_at);
-
-            $adata['info'] = $this->outputInfo; 
-
-            $this->outputData = (object) $adata;
+            $adata['info'] = $this->outputInfo;
+            $this->outputData = $adata;
+ 
         }
 
 
