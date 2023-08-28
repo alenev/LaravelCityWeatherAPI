@@ -3,8 +3,6 @@
 
 LaravelCityWeatherAPI is Laravel 8 application with REST-API for getting weather data from openweathermap.org with Google SSO and Redis data caching. The frontend is written in native JavaScript with Google login. SOLID practices are applied in backend controllers. There is a set of PHPUnit test suites for testing controller methods that are used in REST-API points. In config .github/workflows/sshdeploy.yml CI/CD is configured from localhost to VPS  
 
-### [demo](https://laravelcityweatherapi.alenev.name/)
-
 - Introduction
 - Installation
 - REST-API
